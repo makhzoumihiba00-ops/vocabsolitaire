@@ -264,6 +264,62 @@ main {
 .brand-text h1 span { color: var(--mint); }
 .brand-text p { font-size: 0.76rem; color: var(--text-low); letter-spacing: 0.04em; }
 
+/* --- level indicator --- */
+.level-group {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.level-badge {
+  display: inline-flex;
+  align-items: baseline;
+  padding: 9px 18px;
+  border-radius: var(--r-pill);
+  font-size: 1rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  color: #241503;
+  background: linear-gradient(180deg, #ffe08a, #f2a71b);
+  border: 1px solid rgba(255, 224, 138, 0.6);
+  box-shadow: 0 4px 14px rgba(245, 158, 11, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+  white-space: nowrap;
+  min-width: 128px;
+  justify-content: center;
+}
+
+.level-badge .level-total {
+  font-size: 0.78em;
+  opacity: 0.72;
+  margin-left: 1px;
+}
+
+.lvl-btn {
+  display: grid;
+  place-items: center;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  border: 1.5px solid var(--line-strong);
+  background: rgba(5, 22, 14, 0.8);
+  color: var(--mint);
+  font-size: 0.72rem;
+  cursor: pointer;
+  transition: color 160ms, border-color 160ms, opacity 160ms, transform 160ms var(--ease-out);
+}
+
+.lvl-btn:hover:not(:disabled) {
+  color: var(--text-hi);
+  border-color: var(--mint);
+  transform: scale(1.08);
+}
+
+.lvl-btn:disabled {
+  opacity: 0.28;
+  cursor: default;
+}
+
 /* --- stats pill --- */
 .stats-pill {
   display: flex;
@@ -609,6 +665,30 @@ main {
 
 .deck-go { flex: none; font-size: 0.95rem; color: var(--mint); }
 
+.deck-level {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  margin-left: 10px;
+  font-size: 0.74rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.03em;
+  color: var(--amber);
+  background: var(--amber-soft);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+  vertical-align: 2px;
+  white-space: nowrap;
+}
+
+.deck-level.is-done {
+  color: var(--emerald);
+  background: var(--mint-soft);
+  border-color: rgba(52, 211, 153, 0.4);
+}
+
 /* --- victory modal --- */
 .win-modal { text-align: center; }
 
@@ -646,6 +726,35 @@ main {
 .win-stat.is-acc b    { color: var(--emerald); }
 
 .win-actions { display: flex; justify-content: center; gap: 12px; flex-wrap: wrap; }
+
+.win-next {
+  margin-top: 16px;
+  font-size: 0.92rem;
+  color: var(--text-mid);
+}
+
+.win-next b { color: var(--mint); }
+
+.win-progress {
+  height: 7px;
+  margin: 14px auto 2px;
+  width: 78%;
+  border-radius: var(--r-pill);
+  background: rgba(5, 22, 14, 0.85);
+  border: 1px solid var(--line);
+  overflow: hidden;
+}
+
+.win-progress-fill {
+  height: 100%;
+  width: 0;
+  border-radius: var(--r-pill);
+  background: linear-gradient(90deg, var(--emerald-strong), var(--mint));
+}
+
+.win-progress-fill.is-running { animation: progress-fill 3400ms linear forwards; }
+
+.win-progress.is-hidden { display: none; }
 
 /* --- toast --- */
 .toast {
@@ -708,6 +817,11 @@ main {
   to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
+@keyframes progress-fill {
+  from { width: 0; }
+  to   { width: 100%; }
+}
+
 @keyframes confetti-fall {
   0%   { transform: translateY(-4vh) rotate(0deg); opacity: 1; }
   100% { transform: translateY(104vh) rotate(720deg); opacity: 0.7; }
@@ -751,6 +865,14 @@ main {
       <h1>Vocab<span>Solitaire</span></h1>
       <p>CATEGORIZE &amp; MASTER WORDS</p>
     </div>
+  </div>
+
+  <div class="level-group" role="group" aria-label="Level selection">
+    <button class="lvl-btn" id="btn-level-prev" title="Previous unlocked level" aria-label="Previous level">◀</button>
+    <div class="level-badge" id="level-badge" title="Current level">
+      LEVEL&nbsp;<span id="level-value">01</span><span class="level-total">/15</span>
+    </div>
+    <button class="lvl-btn" id="btn-level-next" title="Next unlocked level" aria-label="Next level">▶</button>
   </div>
 
   <div class="stats-pill" role="status" aria-label="Game statistics">
@@ -839,19 +961,22 @@ main {
   </div>
 </div>
 
-<!-- ============================ VICTORY MODAL ============================ -->
+<!-- ============================ VICTORY / LEVEL-UP MODAL ============================ -->
 <div class="modal-overlay" id="modal-win" role="dialog" aria-modal="true" aria-labelledby="win-title">
   <div class="modal-card win-modal">
-    <div class="win-trophy">🏆</div>
-    <h3 class="win-title" id="win-title">Deck <span>Cleared!</span></h3>
+    <div class="win-trophy" id="win-trophy">🏆</div>
+    <h3 class="win-title" id="win-title">Level <span>Cleared!</span></h3>
     <p class="win-sub" id="win-sub">Every word found its home.</p>
     <div class="win-stats">
       <div class="win-stat is-time"><b id="win-time">00:00</b><span>Time</span></div>
       <div class="win-stat is-errors"><b id="win-errors">0</b><span>Mistakes</span></div>
       <div class="win-stat is-acc"><b id="win-accuracy">100%</b><span>Accuracy</span></div>
     </div>
+    <div class="win-next" id="win-next">Next up: <b>Level 2/15</b> · Intermediate</div>
+    <div class="win-progress" id="win-progress"><div class="win-progress-fill" id="win-progress-fill"></div></div>
     <div class="win-actions">
-      <button class="btn" id="btn-play-again">Play Again</button>
+      <button class="btn" id="btn-play-again">Continue ▶</button>
+      <button class="btn btn-ghost" id="btn-change-deck">Change Deck</button>
       <button class="btn btn-ghost" id="btn-close-win">Keep Admiring</button>
     </div>
   </div>
@@ -882,11 +1007,22 @@ main {
         { id: "transport", name: "Transportation", icon: "✈️" },
         { id: "clothing", name: "Clothing", icon: "👕" }
       ],
-      words: [
-        ["Dog", "animals"], ["Cat", "animals"], ["Elephant", "animals"], ["Lion", "animals"], ["Horse", "animals"],
-        ["Apple", "food"], ["Bread", "food"], ["Banana", "food"], ["Rice", "food"], ["Cheese", "food"],
-        ["Car", "transport"], ["Bus", "transport"], ["Train", "transport"], ["Bicycle", "transport"], ["Airplane", "transport"],
-        ["Shirt", "clothing"], ["Jacket", "clothing"], ["Shoes", "clothing"], ["Hat", "clothing"], ["Dress", "clothing"]
+      levels: [
+        ["Dog Cat Cow Fish Bird", "Apple Egg Milk Rice Bread", "Car Bus Bike Boat Train", "Shirt Hat Shoe Sock Coat"],
+        ["Horse Pig Duck Frog Bee", "Banana Cake Corn Soup Tea", "Ship Plane Truck Taxi Van", "Dress Boot Belt Glove Scarf"],
+        ["Lion Bear Wolf Goat Mouse", "Mango Pear Meat Salt Honey", "Subway Ferry Wagon Sled Tram", "Sweater Cap Shorts Vest Mitten"],
+        ["Tiger Zebra Rabbit Monkey Chicken", "Orange Grape Butter Salad Noodles", "Ambulance Tractor Canoe Scooter Yacht", "Jacket Skirt Sandals Pajamas Raincoat"],
+        ["Panda Camel Eagle Snake Parrot", "Lemon Peach Bacon Yogurt Biscuit", "Glider Rickshaw Hovercraft Gondola Chariot", "Blazer Turtleneck Sneakers Bathrobe Cardigan"],
+        ["Giraffe Dolphin Penguin Turtle Peacock", "Cherry Melon Tofu Pancake Popcorn", "Helicopter Submarine Cablecar Monorail Tugboat", "Tuxedo Overalls Windbreaker Kimono Leggings"],
+        ["Kangaroo Squirrel Hedgehog Flamingo Octopus", "Pineapple Coconut Avocado Lasagna Milkshake", "Sailboat Seaplane Skateboard Snowboard Speedboat", "Hoodie Jumpsuit Parka Loafers Beret"],
+        ["Leopard Gorilla Crocodile Rhinoceros Chimpanzee", "Spinach Broccoli Ravioli Croissant Smoothie", "Limousine Trolleybus Catamaran Snowmobile Funicular", "Waistcoat Brogues Clogs Poncho Galoshes"],
+        ["Cheetah Walrus Pelican Bison Chameleon", "Artichoke Parmesan Guacamole Muesli Baguette", "Zeppelin Hydrofoil Maglev Locomotive Schooner", "Espadrilles Balaclava Cravat Stole Moccasins"],
+        ["Porcupine Alligator Armadillo Ostrich Starfish", "Asparagus Cannoli Risotto Bruschetta Jalapeno", "Icebreaker Houseboat Velomobile Cabriolet Fireboat", "Peacoat Jodhpurs Waders Fedora Deerstalker"],
+        ["Reindeer Seahorse Woodpecker Tarantula Hippopotamus", "Parsnip Tahini Gruyere Gnocchi Sherbet", "Shinkansen Snowcat Catboat Quadbike Outrigger", "Apparel Bolero Tabard Gaiters Culottes"],
+        ["Feline Canine Rodent Reptile Amphibian", "Cuisine Garnish Seasoning Appetizer Beverage", "Transit Commute Itinerary Junction Terminal", "Attire Ensemble Raiment Finery Regalia"],
+        ["Carnivore Herbivore Omnivore Primate Marsupial", "Delicacy Gourmet Savory Pungent Succulent", "Navigation Logistics Freight Velocity Piloting", "Couture Sartorial Tailoring Haberdashery Millinery"],
+        ["Predator Ruminant Mammal Crustacean Arachnid", "Legume Condiment Umami Preservative Antipasto", "Locomotion Propulsion Helipad Ballast Rudder", "Textile Hosiery Footwear Headgear Loungewear"],
+        ["Raptor Ungulate Cephalopod Invertebrate Cetacean", "Gastronomy Nourishment Sustenance Palate Connoisseur", "Odyssey Sojourn Exodus Pilgrimage Convoy", "Vestment Garb Trappings Adornment Livery"]
       ]
     },
     {
@@ -898,11 +1034,22 @@ main {
         { id: "sports", name: "Sports", icon: "⚽" },
         { id: "weather", name: "Weather", icon: "🌤️" }
       ],
-      words: [
-        ["Table", "home"], ["Window", "home"], ["Pillow", "home"], ["Kitchen", "home"], ["Garden", "home"],
-        ["Pencil", "school"], ["Teacher", "school"], ["Library", "school"], ["Homework", "school"], ["Ruler", "school"],
-        ["Soccer", "sports"], ["Tennis", "sports"], ["Swimming", "sports"], ["Boxing", "sports"], ["Marathon", "sports"],
-        ["Rain", "weather"], ["Snow", "weather"], ["Cloud", "weather"], ["Storm", "weather"], ["Sunshine", "weather"]
+      levels: [
+        ["Table Chair Bed Door Lamp", "Book Pen Desk Bag Clock", "Ball Run Jump Swim Kick", "Rain Sun Snow Wind Cloud"],
+        ["Window Pillow Kitchen Garden Floor", "Pencil Eraser Ruler Class Teacher", "Team Game Win Race Goal", "Storm Fog Ice Hail Mist"],
+        ["Sofa Towel Mirror Sink Stairs", "Chalk Globe Paper Exam Recess", "Soccer Tennis Boxing Cycling Archery", "Breeze Drizzle Thunder Lightning Downpour"],
+        ["Attic Basement Balcony Fireplace Porch", "Library Subject Uniform Semester Notebook", "Marathon Volleyball Gymnastics Badminton Wrestling", "Blizzard Typhoon Frost Sleet Drought"],
+        ["Cupboard Drawer Curtain Mattress Hallway", "Canteen Homework Blackboard Noticeboard Timetable", "Referee Trophy Athlete Stadium Penalty", "Cyclone Monsoon Gale Haze Whirlwind"],
+        ["Pantry Laundry Banister Shutter Chimney", "Laboratory Principal Detention Locker Projector", "Triathlon Pentathlon Squash Rowing Fencing", "Avalanche Sandstorm Heatwave Cloudburst Snowstorm"],
+        ["Sideboard Chandelier Crockery Kettle Tableware", "Curriculum Syllabus Auditorium Dormitory Protractor", "Polo Rugby Cricket Lacrosse Softball", "Hurricane Gust Forecast Slush Icicle"],
+        ["Alcove Candelabra Hearth Armoire Divan", "Freshman Seminary Alumnus Matriculation Valedictorian", "Offside Doping Tiebreak Podium Grandstand", "Barometer Anticyclone Meteorologist Overcast Microclimate"],
+        ["Portico Veranda Balustrade Gazebo Larder", "Dean Thesis Elective Transcript Sophomore", "Curling Karate Decathlon Biathlon Baton", "Isobar Cumulus Cirrus Stratus Nimbus"],
+        ["Tapestry Settee Ottoman Duplex Patio", "Lectern Roster Bursar Proctor Abacus", "Derby Rally Regatta Tournament Sabre", "Waterspout Graupel Hailstorm Flurry Zephyr"],
+        ["Transom Parquet Mansard Corbel Newel", "Honors Remedial Seminar Internship Extracurricular", "Qualifier Eliminator Walkover Comeback Underdog", "Derecho Petrichor Barometric Maelstrom Inclement"],
+        ["Homestead Abode Dwelling Habitation Domicile", "Pedagogy Erudition Academia Scholarship Collegiate", "Sportsmanship Athleticism Endurance Stamina Agility", "Tempest Equinox Solstice Precipitation Atmosphere"],
+        ["Sanctum Threshold Premises Quarters Lodging", "Epistemology Dissertation Postgraduate Provost Tenure", "Olympiad Camaraderie Adrenaline Rivalry Prowess", "Turbulence Convection Evaporation Condensation Occlusion"],
+        ["Fixtures Furnishings Renovation Mortgage Hermitage", "Literacy Numeracy Discourse Cognition Rhetoric", "Anaerobic Aerobics Calisthenics Plyometrics Biomechanics", "Troposphere Ionosphere Ultraviolet Albedo Ozone"],
+        ["Domesticity Hospitality Residency Manor Chalet", "Sophistry Academe Literati Collegiality Symposium", "Pugilism Gymkhana Velodrome Olympian Amateurism", "Vernal Meteoric Snowmelt Brumal Aurora"]
       ]
     },
     {
@@ -914,11 +1061,22 @@ main {
         { id: "ocean", name: "Ocean", icon: "🌊" },
         { id: "body", name: "Human Body", icon: "💪" }
       ],
-      words: [
-        ["Flower", "plants"], ["Tree", "plants"], ["Leaf", "plants"], ["Root", "plants"], ["Seed", "plants"],
-        ["Planet", "space"], ["Star", "space"], ["Rocket", "space"], ["Moon", "space"], ["Comet", "space"],
-        ["Shark", "ocean"], ["Whale", "ocean"], ["Coral", "ocean"], ["Dolphin", "ocean"], ["Wave", "ocean"],
-        ["Heart", "body"], ["Brain", "body"], ["Muscle", "body"], ["Finger", "body"], ["Shoulder", "body"]
+      levels: [
+        ["Tree Leaf Flower Grass Seed", "Star Moon Sun Mars Sky", "Fish Crab Shark Wave Shell", "Hand Foot Eye Ear Nose"],
+        ["Root Stem Rose Tulip Fern", "Earth Venus Pluto Saturn Meteor", "Whale Dolphin Octopus Seal Seaweed", "Arm Leg Hair Face Brain"],
+        ["Cactus Bamboo Moss Ivy Lily", "Jupiter Galaxy Orbit Astronaut Satellite", "Turtle Squid Lobster Eel Island", "Neck Back Knee Mouth Tooth"],
+        ["Maple Cedar Orchid Sunflower Thistle", "Neptune Gravity Eclipse Telescope Asteroid", "Jellyfish Seahorse Penguin Plankton Lagoon", "Muscle Elbow Finger Shoulder Stomach"],
+        ["Willow Basil Clover Dandelion Mushroom", "Mercury Uranus Crater Lunar Spacewalk", "Stingray Narwhal Puffin Kelp Tide", "Ankle Wrist Thumb Eyebrow Skeleton"],
+        ["Sage Parsley Thyme Lavender Jasmine", "Cosmos Supernova Zodiac Observatory Constellation", "Barnacle Manatee Swordfish Anemone Archipelago", "Liver Kidney Spine Lungs Bladder"],
+        ["Juniper Magnolia Azalea Begonia Carnation", "Exoplanet Meteorite Stratosphere Celestial Halo", "Cormorant Porpoise Mollusk Atoll Blowhole", "Tendon Cartilage Marrow Retina Alveoli"],
+        ["Chlorophyll Photosynthesis Deciduous Perennial Germination", "Perihelion Lightyear Redshift Parallax Zenith", "Bioluminescence Thermocline Estuary Trench Nautical", "Capillary Neuron Artery Membrane Antibody"],
+        ["Xylem Phloem Stomata Pollination Symbiosis", "Aphelion Perigee Syzygy Umbra Pulsar", "Upwelling Halocline Current Undertow Abyss", "Synapse Cortex Hormone Enzyme Cerebellum"],
+        ["Angiosperm Gymnosperm Botany Tropism Rhizome", "Nebula Accretion Singularity Magnetosphere Ionosphere", "Littoral Benthic Pelagic Chemosynthesis Sonar", "Mitochondria Chromosome Hemoglobin Vestigial Pharynx"],
+        ["Cultivar Grafting Hydroponics Arboretum Bract", "Interplanetary Galactic Retrograde Astronomy Cosmonaut", "Doldrums Tsunami Reef Flotsam Gyre", "Endocrine Vasodilation Cochlea Aorta Deltoid"],
+        ["Flora Botanical Transpiration Chloroplast Petiole", "Astrophysics Cosmology Interstellar Relativity Exosphere", "Abyssal Oceanography Salinity Tidal Brackish", "Homeostasis Metabolism Physiology Anatomy Circadian"],
+        ["Botanist Pollen Sepal Stamen Pistil", "Quasar Magnetar Wormhole Antimatter Supermassive", "Bathyal Tidewater Desalination Osmosis Buoyancy", "Amygdala Hippocampus Corpuscle Ganglion Peristalsis"],
+        ["Evergreen Bromeliad Epiphyte Cycad Lichen", "Baryon Quark Neutrino Boson Geodesic", "Thermohaline Anglerfish Bathymetry Nekton Fathom", "Leukocyte Hematology Myocardium Synovial Vestibular"],
+        ["Xerophyte Auxin Turgor Cambium Lignin", "Entropy Quantum Spacetime Multiverse Infinity", "Bathypelagic Euphotic Hadal Riptide Detritus", "Systolic Diastolic Myelin Telomere Cytokine"]
       ]
     },
     {
@@ -930,17 +1088,53 @@ main {
         { id: "music", name: "Music", icon: "🎵" },
         { id: "travel", name: "Travel", icon: "🧳" }
       ],
-      words: [
-        ["Doctor", "jobs"], ["Farmer", "jobs"], ["Pilot", "jobs"], ["Chef", "jobs"], ["Lawyer", "jobs"],
-        ["Happy", "emotions"], ["Angry", "emotions"], ["Surprised", "emotions"], ["Nervous", "emotions"], ["Proud", "emotions"],
-        ["Guitar", "music"], ["Piano", "music"], ["Drum", "music"], ["Violin", "music"], ["Singer", "music"],
-        ["Passport", "travel"], ["Hotel", "travel"], ["Airport", "travel"], ["Suitcase", "travel"], ["Map", "travel"]
+      levels: [
+        ["Doctor Teacher Farmer Cook Driver", "Happy Sad Angry Tired Afraid", "Song Drum Piano Sing Dance", "Map Hotel Trip Ticket Plane"],
+        ["Nurse Pilot Officer Dentist Builder", "Excited Sleepy Lonely Nervous Shy", "Guitar Violin Flute Concert Melody", "Suitcase Passport Beach Journey Train"],
+        ["Lawyer Chef Butcher Mechanic Waiter", "Proud Jealous Bored Surprised Calm", "Trumpet Chorus Banjo Rhythm Band", "Airport Taxi Tourist Visa Vacation"],
+        ["Engineer Architect Carpenter Electrician Journalist", "Grateful Anxious Curious Confused Delighted", "Cello Harmonica Orchestra Tempo Rehearsal", "Backpacker Souvenir Excursion Hostel Cruise"],
+        ["Accountant Pharmacist Veterinarian Firefighter Translator", "Miserable Ecstatic Sympathetic Impatient Embarrassed", "Clarinet Symphony Acapella Karaoke Saxophone", "Adventure Reservation Departure Landmark Customs"],
+        ["Psychologist Receptionist Surgeon Geologist Programmer", "Enthusiastic Melancholic Content Overjoyed Skeptical", "Overture Tenor Baritone Nocturne Composer", "Expedition Sightseeing Boarding Layover Jetlag"],
+        ["Optometrist Archaeologist Zoologist Auditor Chiropractor", "Indignant Apprehensive Elated Sullen Wistful", "Crescendo Falsetto Vibrato Maestro Duet", "Wanderlust Escapade Trek Voyage Globetrotter"],
+        ["Anesthesiologist Paramedic Anthropologist Cartographer Curator", "Ambivalent Despondent Exasperated Incredulous Belligerent", "Cacophony Dissonance Polyphony Sonata Virtuoso", "Embarkation Stopover Redeye Waypoint Duffel"],
+        ["Sommelier Confectioner Agronomist Actuary Farrier", "Morose Capricious Pensive Forlorn Jovial", "Aria Cadence Refrain Polyrhythm Libretto", "Itinerary Passage Border Destination Guidebook"],
+        ["Barrister Apiarist Milliner Cooper Chandler", "Perturbed Ennui Schadenfreude Bellicose Trepidation", "Timbre Tremolo Glissando Leitmotif Counterpoint", "Portmanteau Valise Perambulation Traverse Circumnavigate"],
+        ["Epidemiologist Lexicographer Auctioneer Undertaker Apothecary", "Vexation Euphoria Consternation Serenity Malevolence", "Sonorous Cadenza Obbligato Toccata Finale", "Nomad Vagabond Peregrination Detour Crossing"],
+        ["Vocation Profession Entrepreneur Tradesperson Occupation", "Equanimity Animosity Contentment Empathy Affection", "Consonance Harmonics Monophony Repertoire Chromaticism", "Migration Junket Crossroads Compass Gallivant"],
+        ["Apprenticeship Freelancer Executive Bureaucrat Arbitrator", "Resentment Rapture Pang Envy Yearning", "Madrigal Requiem Oratorio Motet Chorale", "Reconnaissance Peripatetic Itinerant Ramble Caravan"],
+        ["Consultancy Merchandiser Litigator Statistician Psychiatrist", "Sanguine Phlegmatic Choleric Mercurial Lachrymose", "Countertenor Cantata Fugue Etude Pastorale", "Hajj Retreat Wayfarer Passenger Portage"],
+        ["Notary Calligrapher Ergonomist Ombudsman Taxidermist", "Weltschmerz Saudade Nostalgia Affliction Felicity", "Serenade Harmonium Theremin Sousaphone Didgeridoo", "Escapism Transience Ambulation Roaming Drifter"]
       ]
     }
   ];
 
   var STORAGE_SOUND = "vocabsolitaire.sound";
   var STORAGE_DECK = "vocabsolitaire.deck";
+  var STORAGE_PROGRESS = "vocabsolitaire.progress";
+
+  var TOTAL_LEVELS = 15;
+
+  /* expand compact per-level word groups ("Dog Cat Cow…" ×4) into
+     [word, category] pairs, five words per category */
+  DECKS.forEach(function (deck) {
+    deck.levels = deck.levels.map(function (groups) {
+      var pairs = [];
+      groups.forEach(function (words, i) {
+        words.trim().split(/\s+/).forEach(function (w) {
+          pairs.push([w, deck.categories[i].id]);
+        });
+      });
+      return pairs;
+    });
+  });
+
+  /* difficulty tier names for the 15-level progression */
+  function tierOf(level) {
+    if (level <= 3) return "Elementary";
+    if (level <= 7) return "Intermediate";
+    if (level <= 11) return "Upper-Intermediate";
+    return "Advanced";
+  }
 
   /* ==================================================================
      SFX — Web Audio API synth (created lazily on first gesture)
@@ -1031,12 +1225,13 @@ main {
       });
     }
 
-    function newGame(deckId) {
+    function newGame(deckId, level) {
       var deck = null;
       for (var d = 0; d < DECKS.length; d++) if (DECKS[d].id === deckId) deck = DECKS[d];
       if (!deck) deck = DECKS[0];
+      var lvl = Math.min(TOTAL_LEVELS, Math.max(1, level || 1));
 
-      var cards = deck.words.map(function (w) {
+      var cards = deck.levels[lvl - 1].map(function (w) {
         uid++;
         return {
           id: "card-" + uid,
@@ -1053,6 +1248,8 @@ main {
       state = {
         deckId: deck.id,
         deckName: deck.name,
+        level: lvl,
+        tier: tierOf(lvl),
         categories: deck.categories,
         cards: cards,
         score: 0, errors: 0, seconds: 0,
@@ -1437,6 +1634,15 @@ main {
       els.modalDecks = $("#modal-decks");
       els.deckList = $("#deck-list");
       els.confettiLayer = $("#confetti-layer");
+      els.levelValue = $("#level-value");
+      els.levelBadge = $("#level-badge");
+      els.btnPrevLevel = $("#btn-level-prev");
+      els.btnNextLevel = $("#btn-level-next");
+      els.winTrophy = $("#win-trophy");
+      els.winNext = $("#win-next");
+      els.winProgress = $("#win-progress");
+      els.winProgressFill = $("#win-progress-fill");
+      els.btnPlayAgain = $("#btn-play-again");
     }
 
     function formatTime(total) {
@@ -1512,6 +1718,15 @@ main {
       });
     }
 
+    function pad2(n) { return (n < 10 ? "0" : "") + n; }
+
+    function updateLevelBadge(state, unlocked) {
+      els.levelValue.textContent = pad2(state.level);
+      els.levelBadge.title = "Level " + state.level + " of " + TOTAL_LEVELS + " — " + state.tier + " vocabulary";
+      els.btnPrevLevel.disabled = state.level <= 1;
+      els.btnNextLevel.disabled = state.level >= unlocked;
+    }
+
     function toast(message) {
       els.toast.textContent = message;
       els.toast.classList.add("is-visible");
@@ -1525,10 +1740,31 @@ main {
       $("#win-time").textContent = formatTime(state.seconds);
       $("#win-errors").textContent = String(state.errors);
       $("#win-accuracy").textContent = accuracy + "%";
-      $("#win-sub").textContent = state.errors === 0
-        ? "Flawless run — not a single misdrop!"
-        : "Every word found its home.";
+
+      var isFinal = state.level >= TOTAL_LEVELS;
+      if (isFinal) {
+        els.winTrophy.textContent = "👑";
+        $("#win-title").innerHTML = "ALL 15 LEVELS <span>CLEARED!</span>";
+        $("#win-sub").textContent = "You mastered every tier of “" + state.deckName + "” — exceptional work.";
+        els.winNext.textContent = "Deck complete! Replay the final challenge or conquer another deck.";
+        els.winProgress.classList.add("is-hidden");
+        els.btnPlayAgain.textContent = "Replay Final Level";
+      } else {
+        els.winTrophy.textContent = "⬆️";
+        $("#win-title").innerHTML = "LEVEL " + pad2(state.level) + " <span>COMPLETE!</span>";
+        $("#win-sub").textContent = state.errors === 0
+          ? "Flawless run — not a single misdrop!"
+          : "Every word found its home.";
+        els.winNext.innerHTML = "Next up: <b>Level " + (state.level + 1) + "/15</b> · " +
+          tierOf(state.level + 1) + " vocabulary";
+        els.winProgress.classList.remove("is-hidden");
+        els.winProgressFill.classList.remove("is-running");
+        void els.winProgressFill.offsetWidth; /* restart the fill animation */
+        els.winProgressFill.classList.add("is-running");
+        els.btnPlayAgain.textContent = "Continue ▶";
+      }
       openModal(els.modalWin);
+      return isFinal ? "mastery" : "levelup";
     }
 
     function openModal(overlay) {
@@ -1543,10 +1779,13 @@ main {
       }
     }
 
-    function renderDeckList(currentId, onPick) {
+    function renderDeckList(currentId, onPick, progressMap) {
+      var progress = progressMap || {};
       els.deckList.innerHTML = "";
       DECKS.forEach(function (deck) {
         var isCurrent = deck.id === currentId;
+        var unlocked = Math.min(TOTAL_LEVELS, Math.max(1, progress[deck.id] || 1));
+        var done = unlocked >= TOTAL_LEVELS;
         var btn = document.createElement("button");
         btn.type = "button";
         btn.className = "deck-option" + (isCurrent ? " is-current" : "");
@@ -1554,7 +1793,9 @@ main {
           '<span class="deck-emoji" aria-hidden="true">' + deck.emoji + "</span>" +
           '<span class="deck-info">' +
           '<span class="deck-name">' + deck.name +
-          (isCurrent ? '<span class="current-tag">PLAYING</span>' : "") + "</span>" +
+          (isCurrent ? '<span class="current-tag">PLAYING</span>' : "") +
+          '<span class="deck-level' + (done ? " is-done" : "") + '">' +
+          (done ? "🏆 Level 15/15" : "Level " + unlocked + "/15") + "</span></span>" +
           '<span class="deck-tagline">' + deck.tagline + "</span>" +
           '<span class="deck-cats">' +
           deck.categories.map(function (c) { return "<span>" + c.icon + " " + c.name + "</span>"; }).join("") +
@@ -1576,6 +1817,7 @@ main {
       updateCardsLeft: updateCardsLeft,
       setTimer: setTimer,
       markSelected: markSelected,
+      updateLevelBadge: updateLevelBadge,
       toast: toast,
       showWin: showWin,
       hideWin: function () { closeModal(els.modalWin); },
@@ -1599,9 +1841,50 @@ main {
       return Ui.els.deckArea.querySelector('.word-card[data-id="' + escapeAttr(id) + '"]');
     }
 
-    function startGame(deckId) {
-      Store.newGame(deckId);
+    function startGame(deckId, level) {
+      var lvl = Math.min(unlockedLevel(deckId), Math.max(1, level || 1));
+      Store.newGame(deckId, lvl);
       try { localStorage.setItem(STORAGE_DECK, deckId); } catch (e) {}
+    }
+
+    /* ---------- level progress persistence ---------- */
+
+    function loadProgress() {
+      try { return JSON.parse(localStorage.getItem(STORAGE_PROGRESS)) || {}; }
+      catch (e) { return {}; }
+    }
+
+    function saveProgress(map) {
+      try { localStorage.setItem(STORAGE_PROGRESS, JSON.stringify(map)); } catch (e) {}
+    }
+
+    function unlockedLevel(deckId) {
+      var m = loadProgress();
+      return Math.min(TOTAL_LEVELS, Math.max(1, m[deckId] || 1));
+    }
+
+    function unlockLevel(deckId, level) {
+      var m = loadProgress();
+      m[deckId] = Math.max(m[deckId] || 1, Math.min(TOTAL_LEVELS, level));
+      saveProgress(m);
+    }
+
+    /* level-up auto-advance owns a timer that must die with the modal */
+    var winMode = "levelup";
+    var autoNextTimer = null;
+
+    function hideWinModal() {
+      clearTimeout(autoNextTimer);
+      Ui.hideWin();
+    }
+
+    function goToLevel(level) {
+      var s = Store.get();
+      level = Math.min(unlockedLevel(s.deckId), level);
+      hideWinModal();
+      Sfx.shuffle();
+      startGame(s.deckId, level);
+      Ui.toast("⬆️ Level " + level + "/15 — " + tierOf(level) + " vocabulary");
     }
 
     /* a restart mid-flight can leave an animated ghost behind */
@@ -1690,6 +1973,7 @@ main {
         Ui.updateCardsLeft();
         Ui.setTimer(0);
         Ui.markSelected(null);
+        Ui.updateLevelBadge(state, unlockedLevel(state.deckId));
         Anim.deal(Array.prototype.slice.call(document.querySelectorAll(".word-card")));
       });
       Store.on("card-sorted", function () { Ui.updateStats(Store.get()); Anim.pop(Ui.els.statScore); });
@@ -1697,10 +1981,22 @@ main {
       Store.on("tick", Ui.setTimer);
       Store.on("select", Ui.markSelected);
       Store.on("game-won", function (state) {
+        if (state.level < TOTAL_LEVELS) unlockLevel(state.deckId, state.level + 1);
         setTimeout(function () {
           Sfx.win();
           Anim.confetti(Ui.els.confettiLayer);
-          setTimeout(function () { Ui.showWin(state); }, 900);
+          setTimeout(function () {
+            winMode = Ui.showWin(state);
+            if (winMode === "levelup") {
+              /* automatic progression: advance when the fill bar completes */
+              clearTimeout(autoNextTimer);
+              autoNextTimer = setTimeout(function () {
+                if (Ui.els.modalWin.classList.contains("is-open")) {
+                  goToLevel(state.level + 1);
+                }
+              }, 3500);
+            }
+          }, 900);
         }, 650);
       });
 
@@ -1751,9 +2047,29 @@ main {
       });
 
       $$("#btn-restart").addEventListener("click", function () {
+        var s = Store.get();
         Sfx.shuffle();
-        startGame(Store.get().deckId);
-        Ui.toast("🔄 Deck reshuffled — good luck!");
+        startGame(s.deckId, s.level);
+        Ui.toast("🔄 Level " + s.level + " reshuffled — good luck!");
+      });
+
+      /* level steppers (bounded by unlocked progress) */
+      Ui.els.btnPrevLevel.addEventListener("click", function () {
+        var s = Store.get();
+        if (s.level > 1) {
+          Sfx.shuffle();
+          startGame(s.deckId, s.level - 1);
+          Ui.toast("Level " + (s.level - 1) + "/15 — " + tierOf(s.level - 1));
+        }
+      });
+
+      Ui.els.btnNextLevel.addEventListener("click", function () {
+        var s = Store.get();
+        if (s.level < unlockedLevel(s.deckId)) {
+          Sfx.shuffle();
+          startGame(s.deckId, s.level + 1);
+          Ui.toast("Level " + (s.level + 1) + "/15 — " + tierOf(s.level + 1));
+        }
       });
 
       /* --- deck selector modal --- */
@@ -1762,11 +2078,14 @@ main {
           Ui.closeModal(Ui.els.modalDecks);
           Sfx.shuffle();
           var isNew = deckId !== Store.get().deckId;
-          startGame(deckId);
+          var lvl = unlockedLevel(deckId);
+          startGame(deckId, lvl);
           var deck = null;
           for (var i = 0; i < DECKS.length; i++) if (DECKS[i].id === deckId) deck = DECKS[i];
-          Ui.toast(isNew ? deck.emoji + " Switched to “" + deck.name + "”" : "🔄 Deck reshuffled — good luck!");
-        });
+          Ui.toast(isNew
+            ? deck.emoji + " " + deck.name + " — Level " + lvl + "/15"
+            : "🔄 Level " + lvl + " reshuffled — good luck!");
+        }, loadProgress());
         Ui.openModal(Ui.els.modalDecks);
       }
 
@@ -1776,18 +2095,29 @@ main {
         if (e.target === Ui.els.modalDecks) Ui.closeModal(Ui.els.modalDecks);
       });
 
-      /* victory modal */
+      /* victory / level-up modal */
       $$("#btn-play-again").addEventListener("click", function () {
-        Ui.hideWin();
-        Sfx.shuffle();
-        startGame(Store.get().deckId);
+        var s = Store.get();
+        if (winMode === "levelup") {
+          goToLevel(s.level + 1);
+        } else {
+          hideWinModal();
+          Sfx.shuffle();
+          startGame(s.deckId, s.level);
+          Ui.toast("🔄 Final level reshuffled — good luck!");
+        }
       });
-      $$("#btn-close-win").addEventListener("click", Ui.hideWin);
+      $$("#btn-close-win").addEventListener("click", hideWinModal);
+      $$("#btn-change-deck").addEventListener("click", function () {
+        hideWinModal();
+        openDecksModal();
+      });
       Ui.els.modalWin.addEventListener("click", function (e) {
-        if (e.target === Ui.els.modalWin) Ui.hideWin();
+        if (e.target === Ui.els.modalWin) hideWinModal();
       });
       document.addEventListener("keydown", function (e) {
         if (e.key === "Escape") {
+          clearTimeout(autoNextTimer);
           document.querySelectorAll(".modal-overlay.is-open").forEach(function (m) {
             Ui.closeModal(m);
           });
@@ -1806,10 +2136,11 @@ main {
       /* clock ticks are cheap; Store.tick no-ops until first interaction */
       setInterval(Store.tick, 1000);
 
-      /* restore the last played deck (starter basics by default) */
+      /* restore the last played deck at its highest unlocked level */
       var savedDeck = null;
       try { savedDeck = localStorage.getItem(STORAGE_DECK); } catch (e) {}
-      startGame(savedDeck || DECKS[0].id);
+      var bootDeck = savedDeck || DECKS[0].id;
+      startGame(bootDeck, unlockedLevel(bootDeck));
     }
 
     function updateSoundIcon() {
