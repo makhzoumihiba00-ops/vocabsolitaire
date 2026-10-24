@@ -141,23 +141,17 @@ main {
   background: linear-gradient(90deg, transparent, var(--line), transparent);
 }
 
+/* uniform card grid: neat rows and columns, equal spacing, centered */
 .deck-area {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: center;
-  align-items: flex-start;
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(212px, 1fr));
   gap: 14px;
   min-height: 190px;
-  padding: 10px 4px 6px;
+  padding: 10px 2px 6px;
 }
 
-/* loose-hand-of-cards vertical rhythm */
-.word-card:nth-child(5n + 2) { margin-top: 14px; }
-.word-card:nth-child(5n + 4) { margin-top: 22px; }
-.word-card:nth-child(5n)     { margin-top: 8px;  }
-
 .deck-empty {
-  width: 100%;
+  grid-column: 1 / -1;
   text-align: center;
   padding: 48px 12px;
   color: var(--text-mid);
@@ -496,10 +490,13 @@ main {
 /* --- word card --- */
 .word-card {
   position: relative;
-  display: inline-flex;
+  display: flex;
   align-items: center;
+  justify-content: center;
+  width: 100%;
+  min-height: 62px;
   gap: 10px;
-  padding: 16px 22px 16px 16px;
+  padding: 15px 14px;
   border-radius: 14px;
   background: linear-gradient(180deg, #ffffff 0%, var(--card-face) 100%);
   border: 1px solid rgba(26, 92, 56, 0.28);
@@ -520,7 +517,7 @@ main {
   pointer-events: none;
 }
 
-.word-card:hover { transform: translateY(-4px) rotate(-0.5deg); box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255, 255, 255, 0.9); }
+.word-card:hover { transform: translateY(-3px); box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255, 255, 255, 0.9); }
 .word-card:active { cursor: grabbing; }
 
 .drag-handle {
@@ -534,7 +531,15 @@ main {
   flex: none;
 }
 
-.word-text { font-size: 1.06rem; font-weight: 800; color: var(--ink); letter-spacing: 0.01em; }
+.word-text {
+  font-size: 1.02rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+  text-align: center;
+  line-height: 1.25;
+  overflow-wrap: break-word;
+}
 
 .word-card.is-lifting { opacity: 0.35; border-style: dashed; }
 
@@ -838,9 +843,8 @@ main {
 @media (max-width: 560px) {
   main { width: calc(100% - 24px); }
   .foundations-row { gap: 12px; }
-  .deck-area { gap: 10px; }
-  .word-card:nth-child(n) { margin-top: 0; }
-  .word-card:nth-child(3n + 2) { margin-top: 12px; }
+  .deck-area { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+  .word-text { font-size: 0.95rem; }
   .modal-card { padding: 22px 16px; }
 }
 
@@ -1330,12 +1334,12 @@ main {
       cards.forEach(function (el, i) {
         if (hasGsap()) {
           window.gsap.fromTo(el,
-            { y: 46, opacity: 0, rotate: -3 },
-            { y: 0, opacity: 1, rotate: 0, duration: 0.5, delay: i * 0.045, ease: "back.out(1.6)", clearProps: "transform" });
+            { y: 42, opacity: 0 },
+            { y: 0, opacity: 1, duration: 0.45, delay: i * 0.04, ease: "back.out(1.4)", clearProps: "transform" });
         } else {
           el.animate(
-            [{ transform: "translateY(46px) rotate(-3deg)", opacity: 0 }, { transform: "none", opacity: 1 }],
-            { duration: 480, delay: i * 45, easing: "cubic-bezier(0.34,1.56,0.64,1)", fill: "backwards" });
+            [{ transform: "translateY(42px)", opacity: 0 }, { transform: "none", opacity: 1 }],
+            { duration: 450, delay: i * 40, easing: "cubic-bezier(0.34,1.56,0.64,1)", fill: "backwards" });
         }
       });
     }
