@@ -1,0 +1,608 @@
+/* ==========================================================================
+   VocabSolitaire — Components
+   ========================================================================== */
+
+/* ---------- Brand ---------- */
+
+.brand {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.brand-icon {
+  display: grid;
+  place-items: center;
+  width: 42px;
+  height: 42px;
+  border-radius: var(--r-md);
+  color: var(--mint);
+  background: linear-gradient(160deg, rgba(110, 231, 183, 0.2), rgba(16, 185, 129, 0.08));
+  border: 1px solid var(--line-strong);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.12), 0 6px 14px rgba(0, 0, 0, 0.35);
+}
+
+.brand-text h1 {
+  font-size: 1.22rem;
+  font-weight: 800;
+  letter-spacing: 0.01em;
+  line-height: 1.15;
+}
+
+.brand-text h1 span {
+  color: var(--mint);
+}
+
+.brand-text p {
+  font-size: 0.76rem;
+  color: var(--text-low);
+  letter-spacing: 0.04em;
+}
+
+/* ---------- Stats pill ---------- */
+
+.stats-pill {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: var(--r-pill);
+  background: rgba(5, 22, 14, 0.8);
+  border: 1px solid rgba(110, 231, 183, 0.18);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  padding: 6px 12px;
+  border-radius: var(--r-pill);
+  font-size: 0.9rem;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: 0.02em;
+}
+
+.stat svg {
+  flex: none;
+}
+
+.stat-time {
+  color: var(--amber);
+  background: var(--amber-soft);
+  min-width: 92px;
+  justify-content: center;
+}
+
+.stat-score {
+  color: var(--emerald);
+  background: var(--mint-soft);
+}
+
+.stat-errors {
+  color: var(--danger);
+  background: var(--danger-soft);
+  min-width: 58px;
+  justify-content: center;
+}
+
+/* ---------- Buttons ---------- */
+
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 0.9rem;
+  font-weight: 700;
+  padding: 10px 16px;
+  border-radius: var(--r-pill);
+  color: #06231a;
+  background: linear-gradient(180deg, #4be3ab, #17b077);
+  box-shadow: 0 4px 12px rgba(16, 185, 129, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.35);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast), filter var(--dur-fast);
+}
+
+.btn:hover {
+  transform: translateY(-2px);
+  filter: brightness(1.06);
+}
+
+.btn:active {
+  transform: translateY(0) scale(0.97);
+}
+
+.btn-amber {
+  color: #2d1c02;
+  background: linear-gradient(180deg, #ffd968, #eeab23);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
+
+.btn-ghost {
+  color: var(--text-mid);
+  background: rgba(5, 22, 14, 0.8);
+  border: 1px solid var(--line);
+  box-shadow: none;
+}
+
+.btn-ghost:hover {
+  color: var(--text-hi);
+  border-color: var(--line-strong);
+}
+
+.btn-icon {
+  padding: 10px;
+  width: 42px;
+  height: 42px;
+}
+
+/* ---------- Foundation pile (drop target) ---------- */
+
+.foundation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  border-radius: var(--r-lg);
+  min-height: 208px;
+  padding: 14px;
+  background:
+    linear-gradient(180deg, rgba(9, 33, 21, 0.85), rgba(5, 20, 13, 0.9));
+  border: 2px dashed var(--line-strong);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.45);
+  transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-med);
+}
+
+.foundation-head {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+
+.foundation-icon {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  font-size: 1.25rem;
+  border-radius: var(--r-sm);
+  background: rgba(110, 231, 183, 0.12);
+  border: 1px solid rgba(110, 231, 183, 0.22);
+  flex: none;
+}
+
+.foundation-name {
+  font-size: 0.98rem;
+  font-weight: 700;
+  letter-spacing: 0.01em;
+  line-height: 1.2;
+}
+
+.foundation-count {
+  margin-left: auto;
+  font-size: 0.82rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--text-mid);
+  background: rgba(5, 22, 14, 0.9);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 3px 10px;
+}
+
+.pile-hint {
+  display: block;
+  width: 100%;
+  margin-top: 26px;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 600;
+  letter-spacing: 0.06em;
+  color: var(--text-low);
+  border: 1px dashed var(--line);
+  border-radius: var(--r-sm);
+  padding: 12px 8px;
+  opacity: 0.9;
+}
+
+/* stacked word chips inside a foundation */
+.pile-stack {
+  position: relative;
+  flex: 1;
+}
+
+.pile-chip {
+  position: absolute;
+  left: 50%;
+  bottom: 10px;
+  transform: translateX(-50%) translateY(calc(var(--i) * -8px)) rotate(var(--rot, 0deg));
+  z-index: var(--z, 1);
+  max-width: calc(100% - 16px);
+  padding: 7px 14px;
+  border-radius: var(--r-sm);
+  background: linear-gradient(180deg, var(--card-face-hot), #eef5ef);
+  color: var(--ink);
+  border: 1px solid rgba(26, 92, 56, 0.25);
+  box-shadow: var(--shadow-card);
+  font-size: 0.86rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.pile-chip::before {
+  content: "✓";
+  color: var(--emerald-strong);
+  margin-right: 7px;
+  font-size: 0.78rem;
+}
+
+/* drop-hover while dragging */
+.foundation.drop-hover {
+  border-style: solid;
+  border-color: var(--mint);
+  background: linear-gradient(180deg, rgba(24, 74, 48, 0.92), rgba(11, 40, 26, 0.94));
+  transform: translateY(-3px) scale(1.015);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 14px 30px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(110, 231, 183, 0.22);
+}
+
+.foundation.drop-hover .pile-hint {
+  color: var(--mint);
+  border-color: var(--line-strong);
+}
+
+/* completed pile */
+.foundation.is-complete {
+  border-style: solid;
+  border-color: var(--emerald-strong);
+  box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 26px rgba(52, 211, 153, 0.28);
+}
+
+.foundation.is-complete .foundation-count {
+  color: #06231a;
+  background: var(--emerald);
+  border-color: transparent;
+}
+
+/* feedback flashes (classes applied by JS, removed on animationend) */
+.foundation.glow-correct {
+  animation: glow-correct 720ms var(--ease-out);
+}
+
+.foundation.glow-wrong {
+  animation: glow-wrong 640ms var(--ease-out);
+}
+
+/* ---------- Word card ---------- */
+
+.word-card {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 22px 16px 16px;
+  border-radius: 14px;
+  background: linear-gradient(180deg, var(--card-face-hot) 0%, var(--card-face) 100%);
+  border: 1px solid rgba(26, 92, 56, 0.28);
+  box-shadow: var(--shadow-card), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+  cursor: grab;
+  touch-action: none;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast);
+}
+
+.word-card::after {
+  content: "";
+  position: absolute;
+  inset: 3px;
+  border-radius: 10px;
+  border: 1px solid rgba(26, 92, 56, 0.1);
+  pointer-events: none;
+}
+
+.word-card:hover {
+  transform: translateY(-4px) rotate(-0.5deg);
+  box-shadow: var(--shadow-lift), inset 0 1px 0 rgba(255, 255, 255, 0.9);
+}
+
+.word-card:active {
+  cursor: grabbing;
+}
+
+.drag-handle {
+  display: grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 7px;
+  color: #9fb2a7;
+  background: rgba(26, 92, 56, 0.08);
+  flex: none;
+}
+
+.word-text {
+  font-size: 1.06rem;
+  font-weight: 800;
+  color: var(--ink);
+  letter-spacing: 0.01em;
+}
+
+/* card is being dragged / placed — original dims while the ghost flies */
+.word-card.is-lifting {
+  opacity: 0.35;
+  border-style: dashed;
+  cursor: grabbing;
+}
+
+/* tap-to-select mode */
+.word-card.is-selected {
+  outline: 3px solid var(--mint);
+  outline-offset: 2px;
+  transform: translateY(-4px);
+  animation: selected-pulse 1.2s ease-in-out infinite;
+}
+
+/* ---------- Deck divider pieces ---------- */
+
+.divider-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  color: var(--text-mid);
+  letter-spacing: 0.05em;
+}
+
+.left-badge {
+  font-size: 0.85rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+  color: var(--amber);
+  background: var(--amber-soft);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  padding: 4px 12px;
+  border-radius: var(--r-pill);
+}
+
+/* ---------- Footer scroll cue ---------- */
+
+.scroll-cue {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  color: var(--mint);
+  background: rgba(5, 22, 14, 0.85);
+  border: 1.5px solid var(--line-strong);
+  cursor: pointer;
+  box-shadow: 0 8px 18px rgba(0, 0, 0, 0.4), inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  animation: float-y 2.6s ease-in-out infinite;
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+}
+
+.scroll-cue:hover {
+  color: var(--text-hi);
+  border-color: var(--mint);
+}
+
+/* ---------- Deck modal ---------- */
+
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.modal-title {
+  font-size: 1.3rem;
+  font-weight: 800;
+}
+
+.modal-sub {
+  margin-top: 4px;
+  font-size: 0.86rem;
+  color: var(--text-low);
+}
+
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(5, 22, 14, 0.8);
+  color: var(--text-mid);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: color var(--dur-fast), border-color var(--dur-fast);
+}
+
+.modal-close:hover {
+  color: var(--text-hi);
+  border-color: var(--line-strong);
+}
+
+.deck-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  margin-top: 12px;
+  padding: 15px 16px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: rgba(5, 22, 14, 0.55);
+  cursor: pointer;
+  color: var(--text-hi);
+  font-family: inherit;
+  transition: border-color var(--dur-fast), background var(--dur-fast), transform var(--dur-fast) var(--ease-out);
+}
+
+.deck-option:hover {
+  border-color: var(--line-strong);
+  background: rgba(12, 44, 28, 0.75);
+  transform: translateY(-2px);
+}
+
+.deck-option.is-current {
+  border-color: var(--emerald-strong);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.deck-emoji {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  font-size: 1.45rem;
+  border-radius: var(--r-md);
+  background: rgba(110, 231, 183, 0.12);
+  border: 1px solid rgba(110, 231, 183, 0.22);
+  flex: none;
+}
+
+.deck-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.deck-name {
+  font-size: 1rem;
+  font-weight: 800;
+}
+
+.deck-name .current-tag {
+  margin-left: 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #06231a;
+  background: var(--emerald);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  vertical-align: 2px;
+}
+
+.deck-tagline {
+  margin-top: 3px;
+  font-size: 0.8rem;
+  color: var(--text-low);
+}
+
+.deck-cats {
+  margin-top: 7px;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+}
+
+.deck-cats span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  background: rgba(5, 22, 14, 0.6);
+}
+
+.deck-go {
+  flex: none;
+}
+
+/* ---------- Win modal ---------- */
+
+.win-modal {
+  text-align: center;
+}
+
+.win-trophy {
+  font-size: 3.4rem;
+  line-height: 1;
+  margin: 6px 0 10px;
+  display: inline-block;
+  animation: trophy-bounce 1s var(--ease-spring) both;
+}
+
+.win-title {
+  font-size: 1.65rem;
+  font-weight: 800;
+}
+
+.win-title span {
+  color: var(--mint);
+}
+
+.win-sub {
+  margin-top: 6px;
+  color: var(--text-low);
+  font-size: 0.9rem;
+}
+
+.win-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 22px 0;
+}
+
+.win-stat {
+  padding: 14px 8px;
+  border-radius: var(--r-md);
+  background: rgba(5, 22, 14, 0.7);
+  border: 1px solid var(--line);
+}
+
+.win-stat b {
+  display: block;
+  font-size: 1.35rem;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+
+.win-stat span {
+  font-size: 0.72rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-low);
+}
+
+.win-stat.is-time b   { color: var(--amber); }
+.win-stat.is-errors b { color: var(--danger); }
+.win-stat.is-acc b    { color: var(--emerald); }
+
+.win-actions {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+/* ---------- Toast ---------- */
+
+.toast {
+  padding: 11px 20px;
+  border-radius: var(--r-pill);
+  background: rgba(6, 26, 17, 0.95);
+  border: 1px solid var(--line-strong);
+  color: var(--text-hi);
+  font-size: 0.88rem;
+  font-weight: 600;
+  box-shadow: var(--shadow-lift);
+}
+
+/* reduced motion: soften the infinite pulses */
+@media (prefers-reduced-motion: reduce) {
+  .scroll-cue,
+  .word-card.is-selected {
+    animation: none;
+  }
+}

@@ -1,0 +1,266 @@
+/* ==========================================================================
+   VocabSolitaire — Page Layout
+   ========================================================================== */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  font-family: var(--font-main);
+  color: var(--text-hi);
+  min-height: 100vh;
+  background:
+    radial-gradient(1100px 620px at 50% -140px, rgba(46, 125, 79, 0.55), transparent 62%),
+    radial-gradient(900px 520px at 8% 108%, rgba(20, 67, 42, 0.65), transparent 60%),
+    radial-gradient(900px 520px at 95% 100%, rgba(26, 92, 56, 0.5), transparent 60%),
+    linear-gradient(175deg, var(--felt-dark) 0%, var(--felt-deep) 58%, #051009 100%);
+  background-attachment: fixed;
+  display: flex;
+  flex-direction: column;
+  -webkit-font-smoothing: antialiased;
+}
+
+body.is-dragging {
+  cursor: grabbing;
+  user-select: none;
+  -webkit-user-select: none;
+}
+
+body.is-dragging .word-card {
+  pointer-events: none;
+}
+
+/* ---------- Top bar ---------- */
+
+.topbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 14px 26px;
+  background: linear-gradient(180deg, rgba(4, 18, 11, 0.92), rgba(4, 18, 11, 0.72));
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border-bottom: 1px solid rgba(110, 231, 183, 0.14);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, 0.45);
+  position: sticky;
+  top: 0;
+  z-index: 40;
+}
+
+.topbar-actions {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ---------- Main play area ---------- */
+
+main {
+  flex: 1;
+  width: min(1180px, 100% - 40px);
+  margin: 0 auto;
+  padding: 26px 0 30px;
+}
+
+.section-label {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 1.02rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  color: var(--text-hi);
+  margin-bottom: 14px;
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+
+.section-label small {
+  font-weight: 500;
+  font-size: 0.8rem;
+  color: var(--text-low);
+}
+
+/* ---------- Foundations row ---------- */
+
+.foundations-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+}
+
+/* ---------- Deck divider ---------- */
+
+.deck-divider {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  margin: 34px 0 22px;
+}
+
+.deck-divider::before,
+.deck-divider::after {
+  content: "";
+  flex: 1;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, var(--line), transparent);
+}
+
+/* ---------- Deck (word cards) ---------- */
+
+.deck-area {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: flex-start;
+  gap: 14px 14px;
+  min-height: 190px;
+  padding: 10px 4px 6px;
+}
+
+/* organic vertical stagger, mirroring a loose hand of cards */
+.word-card:nth-child(5n + 2) { margin-top: 14px; }
+.word-card:nth-child(5n + 4) { margin-top: 22px; }
+.word-card:nth-child(5n)     { margin-top: 8px;  }
+
+.deck-empty {
+  grid-column: 1 / -1;
+  width: 100%;
+  text-align: center;
+  padding: 48px 12px;
+  color: var(--text-mid);
+  font-size: 1.05rem;
+}
+
+/* ---------- Footer ---------- */
+
+.app-footer {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 16px 20px 24px;
+  background: linear-gradient(0deg, rgba(3, 13, 8, 0.9), rgba(3, 13, 8, 0.55));
+  border-top: 1px solid rgba(110, 231, 183, 0.12);
+}
+
+.footer-note {
+  font-size: 0.84rem;
+  color: var(--text-low);
+  text-align: center;
+}
+
+/* ---------- Floating layers ---------- */
+
+#confetti-layer {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 900;
+}
+
+.toast {
+  position: fixed;
+  left: 50%;
+  bottom: 30px;
+  transform: translateX(-50%) translateY(20px);
+  opacity: 0;
+  z-index: 1200;
+  pointer-events: none;
+}
+
+.toast.is-visible {
+  animation: toast-in 240ms var(--ease-out) forwards;
+}
+
+/* ---------- Modals ---------- */
+
+.modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 22px;
+  background: rgba(3, 12, 7, 0.72);
+  backdrop-filter: blur(6px);
+  -webkit-backdrop-filter: blur(6px);
+}
+
+.modal-overlay.is-open {
+  display: flex;
+}
+
+.modal-card {
+  width: min(560px, 100%);
+  max-height: min(84vh, 720px);
+  overflow-y: auto;
+  background: linear-gradient(170deg, #10301f, #0a2114);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--r-lg);
+  box-shadow: var(--shadow-panel), 0 0 60px rgba(52, 211, 153, 0.12);
+  padding: 26px 26px 24px;
+}
+
+/* ---------- Drag ghost ---------- */
+/* doubled class beats .word-card's own position/transition rules */
+
+.word-card.drag-ghost {
+  position: fixed;
+  z-index: 999;
+  margin: 0;
+  pointer-events: none;
+  cursor: grabbing;
+  transition: none;
+  opacity: 0;
+  box-shadow: var(--shadow-lift);
+  will-change: left, top, transform;
+}
+
+.word-card.drag-ghost.is-active {
+  opacity: 1;
+}
+
+/* ---------- Responsive ---------- */
+
+@media (max-width: 940px) {
+  .foundations-row {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .topbar {
+    justify-content: center;
+    gap: 12px;
+  }
+}
+
+@media (max-width: 560px) {
+  main {
+    width: calc(100% - 24px);
+  }
+
+  .foundations-row {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+  }
+
+  .deck-area {
+    gap: 10px;
+  }
+
+  .word-card:nth-child(n) {
+    margin-top: 0;
+  }
+
+  .word-card:nth-child(3n + 2) { margin-top: 12px; }
+}

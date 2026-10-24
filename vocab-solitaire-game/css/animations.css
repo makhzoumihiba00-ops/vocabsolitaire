@@ -1,0 +1,108 @@
+/* ==========================================================================
+   VocabSolitaire — Keyframe Animations
+   ========================================================================== */
+
+/* Correct placement: green glow pulse */
+@keyframes glow-correct {
+  0% {
+    box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(52, 211, 153, 0.65);
+    border-color: var(--emerald-strong);
+  }
+  35% {
+    box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 0 6px rgba(52, 211, 153, 0.45), 0 0 46px 8px rgba(52, 211, 153, 0.4);
+    border-color: var(--mint);
+    transform: translateY(-3px);
+  }
+  100% {
+    box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(52, 211, 153, 0);
+    border-color: var(--line-strong);
+    transform: translateY(0);
+  }
+}
+
+/* Wrong placement: red glow + shake */
+@keyframes glow-wrong {
+  0%, 100% {
+    box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 0 0 rgba(248, 113, 113, 0);
+    border-color: var(--line-strong);
+    transform: translateX(0);
+  }
+  20% {
+    box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 0 5px rgba(248, 113, 113, 0.5), 0 0 36px 6px rgba(248, 113, 113, 0.4);
+    border-color: var(--danger-strong);
+    transform: translateX(-5px);
+  }
+  40% {
+    transform: translateX(5px);
+  }
+  60% {
+    box-shadow: inset 0 2px 14px rgba(0, 0, 0, 0.4), 0 0 0 3px rgba(248, 113, 113, 0.28);
+    border-color: var(--danger);
+    transform: translateX(-3px);
+  }
+  80% {
+    transform: translateX(2px);
+  }
+}
+
+/* counter / chip pop */
+@keyframes pop-in {
+  0%   { transform: translateX(-50%) translateY(calc(var(--i) * -8px)) rotate(var(--rot, 0deg)) scale(0.4); opacity: 0; }
+  60%  { transform: translateX(-50%) translateY(calc(var(--i) * -8px)) rotate(var(--rot, 0deg)) scale(1.12); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(calc(var(--i) * -8px)) rotate(var(--rot, 0deg)) scale(1); }
+}
+
+.pile-chip.pop-in {
+  animation: pop-in 420ms var(--ease-spring) both;
+}
+
+@keyframes stat-pop {
+  0%   { transform: scale(1); }
+  45%  { transform: scale(1.22); }
+  100% { transform: scale(1); }
+}
+
+.stat.stat-pop {
+  animation: stat-pop 340ms var(--ease-spring);
+}
+
+/* selected card pulse (tap mode) */
+@keyframes selected-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(110, 231, 183, 0.45), var(--shadow-card); }
+  50%      { box-shadow: 0 0 0 7px rgba(110, 231, 183, 0.16), var(--shadow-card); }
+}
+
+/* floating footer cue */
+@keyframes float-y {
+  0%, 100% { transform: translateY(0); }
+  50%      { transform: translateY(6px); }
+}
+
+/* trophy bounce */
+@keyframes trophy-bounce {
+  0%   { transform: scale(0) rotate(-16deg); }
+  60%  { transform: scale(1.25) rotate(6deg); }
+  100% { transform: scale(1) rotate(0deg); }
+}
+
+/* toast */
+@keyframes toast-in {
+  from { opacity: 0; transform: translateX(-50%) translateY(20px); }
+  to   { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+/* modal entrance */
+.modal-overlay.is-open .modal-card {
+  animation: modal-in 320ms var(--ease-spring) both;
+}
+
+@keyframes modal-in {
+  from { opacity: 0; transform: translateY(26px) scale(0.94); }
+  to   { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+/* confetti fallback (used when neither GSAP nor WAAPI is available) */
+@keyframes confetti-fall {
+  0%   { transform: translateY(-4vh) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(104vh) rotate(720deg); opacity: 0.7; }
+}
