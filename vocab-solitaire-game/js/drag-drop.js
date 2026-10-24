@@ -60,7 +60,6 @@ const DragDrop = (() => {
       hoverEl: null
     };
 
-    document.body.classList.add("is-dragging");
     document.addEventListener("pointermove", onPointerMove);
     document.addEventListener("pointerup", onPointerUp);
     document.addEventListener("pointercancel", onPointerCancel);
@@ -73,6 +72,10 @@ const DragDrop = (() => {
 
     if (!drag.moved && Math.hypot(drag.dx, drag.dy) > 7) {
       drag.moved = true;
+      /* only suppress card hit-testing once this is a real drag — adding
+         it on pointerdown would retarget the following click to the deck
+         area and instantly clear a tap-selection */
+      document.body.classList.add("is-dragging");
       drag.ghost.classList.add("is-active");
       if (typeof Sfx !== "undefined") Sfx.pickup();
       if (cfg.onDragStart) cfg.onDragStart(drag.cardEl);

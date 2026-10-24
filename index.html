@@ -209,10 +209,14 @@ main {
   -webkit-backdrop-filter: blur(6px);
 }
 
-.modal-overlay.is-open { display: flex; }
+.modal-overlay.is-open { display: flex; animation: overlay-in 200ms ease both; }
+
+@keyframes overlay-in { from { opacity: 0; } to { opacity: 1; } }
 
 .modal-card {
   width: min(520px, 100%);
+  max-height: min(84vh, 720px);
+  overflow-y: auto;
   background: linear-gradient(170deg, #10301f, #0a2114);
   border: 1px solid var(--line-strong);
   border-radius: var(--r-lg);
@@ -318,6 +322,12 @@ main {
 }
 
 .btn-ghost:hover { color: var(--text-hi); border-color: var(--line-strong); }
+
+.btn-amber {
+  color: #2d1c02;
+  background: linear-gradient(180deg, #ffd968, #eeab23);
+  box-shadow: 0 4px 12px rgba(245, 158, 11, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.4);
+}
 
 .btn-icon { padding: 10px; width: 42px; height: 42px; }
 
@@ -498,6 +508,106 @@ main {
   padding: 4px 12px;
   border-radius: var(--r-pill);
 }
+
+/* --- deck selector modal --- */
+.modal-head {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.modal-title { font-size: 1.3rem; font-weight: 800; }
+.modal-sub { margin-top: 4px; font-size: 0.86rem; color: var(--text-low); }
+
+.modal-close {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 1px solid var(--line);
+  background: rgba(5, 22, 14, 0.8);
+  color: var(--text-mid);
+  cursor: pointer;
+  flex: none;
+  transition: color 160ms, border-color 160ms;
+}
+
+.modal-close:hover { color: var(--text-hi); border-color: var(--line-strong); }
+
+.deck-option {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  width: 100%;
+  text-align: left;
+  margin-top: 12px;
+  padding: 15px 16px;
+  border-radius: var(--r-md);
+  border: 1.5px solid var(--line);
+  background: rgba(5, 22, 14, 0.55);
+  cursor: pointer;
+  color: var(--text-hi);
+  font-family: inherit;
+  transition: border-color 160ms, background 160ms, transform 160ms var(--ease-out);
+}
+
+.deck-option:hover {
+  border-color: var(--line-strong);
+  background: rgba(12, 44, 28, 0.75);
+  transform: translateY(-2px);
+}
+
+.deck-option.is-current {
+  border-color: var(--emerald-strong);
+  background: rgba(16, 185, 129, 0.12);
+}
+
+.deck-emoji {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  font-size: 1.45rem;
+  border-radius: var(--r-md);
+  background: rgba(110, 231, 183, 0.12);
+  border: 1px solid rgba(110, 231, 183, 0.22);
+  flex: none;
+}
+
+.deck-info { flex: 1; min-width: 0; }
+
+.deck-name { font-size: 1rem; font-weight: 800; display: block; }
+
+.deck-name .current-tag {
+  margin-left: 8px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: #06231a;
+  background: var(--emerald);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  vertical-align: 2px;
+}
+
+.deck-tagline { margin-top: 3px; font-size: 0.8rem; color: var(--text-low); display: block; }
+
+.deck-cats { margin-top: 7px; display: flex; flex-wrap: wrap; gap: 6px; }
+
+.deck-cats span {
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: var(--text-mid);
+  border: 1px solid var(--line);
+  border-radius: var(--r-pill);
+  padding: 2px 9px;
+  background: rgba(5, 22, 14, 0.6);
+}
+
+.deck-go { flex: none; font-size: 0.95rem; color: var(--mint); }
 
 /* --- victory modal --- */
 .win-modal { text-align: center; }
@@ -682,6 +792,13 @@ main {
       </svg>
       Restart
     </button>
+    <button class="btn btn-amber" id="btn-decks" title="Choose a vocabulary deck">
+      <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
+        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+      </svg>
+      Decks
+    </button>
   </div>
 </header>
 
@@ -703,6 +820,24 @@ main {
 <footer class="app-footer">
   <p class="footer-note">Drag each word into the category it belongs to — any order you like. On touch screens: tap a card, then tap a pile. Wrong drops just bounce back!</p>
 </footer>
+
+<!-- ============================ DECKS MODAL ============================ -->
+<div class="modal-overlay" id="modal-decks" role="dialog" aria-modal="true" aria-labelledby="decks-title">
+  <div class="modal-card">
+    <div class="modal-head">
+      <div>
+        <h3 class="modal-title" id="decks-title">Choose a Vocabulary Deck</h3>
+        <p class="modal-sub">Each deck shuffles 20 words across 4 categories.</p>
+      </div>
+      <button class="modal-close" id="btn-close-decks" aria-label="Close deck selector">
+        <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round">
+          <line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line>
+        </svg>
+      </button>
+    </div>
+    <div id="deck-list"><!-- deck options rendered by JS --></div>
+  </div>
+</div>
 
 <!-- ============================ VICTORY MODAL ============================ -->
 <div class="modal-overlay" id="modal-win" role="dialog" aria-modal="true" aria-labelledby="win-title">
@@ -735,30 +870,77 @@ main {
   "use strict";
 
   /* ==================================================================
-     CONFIG — default dataset
+     CONFIG — vocabulary decks (4 categories × 5 words = 20 cards each)
      ================================================================== */
-  var CATEGORIES = [
-    { id: "animals", name: "Animals",        icon: "🐾" },
-    { id: "food",    name: "Food",           icon: "🍴" },
-    { id: "transport", name: "Transportation", icon: "✈️" },
-    { id: "clothing", name: "Clothing",      icon: "👕" }
+  var DECKS = [
+    {
+      id: "starter", emoji: "🎴", name: "Starter Basics",
+      tagline: "Classic everyday categories — perfect first shuffle.",
+      categories: [
+        { id: "animals", name: "Animals", icon: "🐾" },
+        { id: "food", name: "Food", icon: "🍴" },
+        { id: "transport", name: "Transportation", icon: "✈️" },
+        { id: "clothing", name: "Clothing", icon: "👕" }
+      ],
+      words: [
+        ["Dog", "animals"], ["Cat", "animals"], ["Elephant", "animals"], ["Lion", "animals"], ["Horse", "animals"],
+        ["Apple", "food"], ["Bread", "food"], ["Banana", "food"], ["Rice", "food"], ["Cheese", "food"],
+        ["Car", "transport"], ["Bus", "transport"], ["Train", "transport"], ["Bicycle", "transport"], ["Airplane", "transport"],
+        ["Shirt", "clothing"], ["Jacket", "clothing"], ["Shoes", "clothing"], ["Hat", "clothing"], ["Dress", "clothing"]
+      ]
+    },
+    {
+      id: "everyday", emoji: "🏡", name: "Everyday Life",
+      tagline: "Words from the places and moments of a normal day.",
+      categories: [
+        { id: "home", name: "At Home", icon: "🏠" },
+        { id: "school", name: "School", icon: "🎓" },
+        { id: "sports", name: "Sports", icon: "⚽" },
+        { id: "weather", name: "Weather", icon: "🌤️" }
+      ],
+      words: [
+        ["Table", "home"], ["Window", "home"], ["Pillow", "home"], ["Kitchen", "home"], ["Garden", "home"],
+        ["Pencil", "school"], ["Teacher", "school"], ["Library", "school"], ["Homework", "school"], ["Ruler", "school"],
+        ["Soccer", "sports"], ["Tennis", "sports"], ["Swimming", "sports"], ["Boxing", "sports"], ["Marathon", "sports"],
+        ["Rain", "weather"], ["Snow", "weather"], ["Cloud", "weather"], ["Storm", "weather"], ["Sunshine", "weather"]
+      ]
+    },
+    {
+      id: "nature", emoji: "🔬", name: "Nature & Science",
+      tagline: "From the garden to the galaxy — a curious mix.",
+      categories: [
+        { id: "plants", name: "Plants", icon: "🌱" },
+        { id: "space", name: "Space", icon: "🚀" },
+        { id: "ocean", name: "Ocean", icon: "🌊" },
+        { id: "body", name: "Human Body", icon: "💪" }
+      ],
+      words: [
+        ["Flower", "plants"], ["Tree", "plants"], ["Leaf", "plants"], ["Root", "plants"], ["Seed", "plants"],
+        ["Planet", "space"], ["Star", "space"], ["Rocket", "space"], ["Moon", "space"], ["Comet", "space"],
+        ["Shark", "ocean"], ["Whale", "ocean"], ["Coral", "ocean"], ["Dolphin", "ocean"], ["Wave", "ocean"],
+        ["Heart", "body"], ["Brain", "body"], ["Muscle", "body"], ["Finger", "body"], ["Shoulder", "body"]
+      ]
+    },
+    {
+      id: "leisure", emoji: "🎭", name: "Work & Leisure",
+      tagline: "Professions, feelings, music and travel.",
+      categories: [
+        { id: "jobs", name: "Jobs", icon: "💼" },
+        { id: "emotions", name: "Emotions", icon: "😊" },
+        { id: "music", name: "Music", icon: "🎵" },
+        { id: "travel", name: "Travel", icon: "🧳" }
+      ],
+      words: [
+        ["Doctor", "jobs"], ["Farmer", "jobs"], ["Pilot", "jobs"], ["Chef", "jobs"], ["Lawyer", "jobs"],
+        ["Happy", "emotions"], ["Angry", "emotions"], ["Surprised", "emotions"], ["Nervous", "emotions"], ["Proud", "emotions"],
+        ["Guitar", "music"], ["Piano", "music"], ["Drum", "music"], ["Violin", "music"], ["Singer", "music"],
+        ["Passport", "travel"], ["Hotel", "travel"], ["Airport", "travel"], ["Suitcase", "travel"], ["Map", "travel"]
+      ]
+    }
   ];
-
-  var WORDS = [
-    "Dog", "Cat", "Elephant", "Lion", "Horse",
-    "Apple", "Bread", "Banana", "Rice", "Cheese",
-    "Car", "Bus", "Train", "Bicycle", "Airplane",
-    "Shirt", "Jacket", "Shoes", "Hat", "Dress"
-  ];
-
-  var WORD_TO_CATEGORY = {
-    Dog: "animals", Cat: "animals", Elephant: "animals", Lion: "animals", Horse: "animals",
-    Apple: "food", Bread: "food", Banana: "food", Rice: "food", Cheese: "food",
-    Car: "transport", Bus: "transport", Train: "transport", Bicycle: "transport", Airplane: "transport",
-    Shirt: "clothing", Jacket: "clothing", Shoes: "clothing", Hat: "clothing", Dress: "clothing"
-  };
 
   var STORAGE_SOUND = "vocabsolitaire.sound";
+  var STORAGE_DECK = "vocabsolitaire.deck";
 
   /* ==================================================================
      SFX — Web Audio API synth (created lazily on first gesture)
@@ -849,13 +1031,17 @@ main {
       });
     }
 
-    function newGame() {
-      var cards = WORDS.map(function (w) {
+    function newGame(deckId) {
+      var deck = null;
+      for (var d = 0; d < DECKS.length; d++) if (DECKS[d].id === deckId) deck = DECKS[d];
+      if (!deck) deck = DECKS[0];
+
+      var cards = deck.words.map(function (w) {
         uid++;
         return {
           id: "card-" + uid,
-          word: w,
-          categoryId: WORD_TO_CATEGORY[w],
+          word: w[0],
+          categoryId: w[1],
           sorted: false,
           rotation: Math.round((Math.random() * 14 - 7) * 10) / 10
         };
@@ -865,7 +1051,9 @@ main {
         var t = cards[i]; cards[i] = cards[j]; cards[j] = t;
       }
       state = {
-        categories: CATEGORIES,
+        deckId: deck.id,
+        deckName: deck.name,
+        categories: deck.categories,
         cards: cards,
         score: 0, errors: 0, seconds: 0,
         started: false, finished: false,
@@ -1135,7 +1323,6 @@ main {
         dx: 0, dy: 0, moved: false, hoverEl: null
       };
 
-      document.body.classList.add("is-dragging");
       document.addEventListener("pointermove", onPointerMove);
       document.addEventListener("pointerup", onPointerUp);
       document.addEventListener("pointercancel", onPointerCancel);
@@ -1147,6 +1334,10 @@ main {
       drag.dy = e.clientY - drag.startY;
       if (!drag.moved && Math.hypot(drag.dx, drag.dy) > 7) {
         drag.moved = true;
+        /* only suppress card hit-testing once this is a real drag — adding
+           it on pointerdown would retarget the following click to the deck
+           area and instantly clear a tap-selection */
+        document.body.classList.add("is-dragging");
         drag.ghost.classList.add("is-active");
         Sfx.flip();
         if (cfg.onDragStart) cfg.onDragStart(drag.cardEl);
@@ -1243,6 +1434,8 @@ main {
       els.statErrors = $("#stat-errors");
       els.toast = $("#toast");
       els.modalWin = $("#modal-win");
+      els.modalDecks = $("#modal-decks");
+      els.deckList = $("#deck-list");
       els.confettiLayer = $("#confetti-layer");
     }
 
@@ -1335,13 +1528,41 @@ main {
       $("#win-sub").textContent = state.errors === 0
         ? "Flawless run — not a single misdrop!"
         : "Every word found its home.";
-      els.modalWin.classList.add("is-open");
+      openModal(els.modalWin);
+    }
+
+    function openModal(overlay) {
+      overlay.classList.add("is-open");
       document.body.classList.add("modal-open");
     }
 
-    function hideWin() {
-      els.modalWin.classList.remove("is-open");
-      document.body.classList.remove("modal-open");
+    function closeModal(overlay) {
+      overlay.classList.remove("is-open");
+      if (!document.querySelector(".modal-overlay.is-open")) {
+        document.body.classList.remove("modal-open");
+      }
+    }
+
+    function renderDeckList(currentId, onPick) {
+      els.deckList.innerHTML = "";
+      DECKS.forEach(function (deck) {
+        var isCurrent = deck.id === currentId;
+        var btn = document.createElement("button");
+        btn.type = "button";
+        btn.className = "deck-option" + (isCurrent ? " is-current" : "");
+        btn.innerHTML =
+          '<span class="deck-emoji" aria-hidden="true">' + deck.emoji + "</span>" +
+          '<span class="deck-info">' +
+          '<span class="deck-name">' + deck.name +
+          (isCurrent ? '<span class="current-tag">PLAYING</span>' : "") + "</span>" +
+          '<span class="deck-tagline">' + deck.tagline + "</span>" +
+          '<span class="deck-cats">' +
+          deck.categories.map(function (c) { return "<span>" + c.icon + " " + c.name + "</span>"; }).join("") +
+          "</span></span>" +
+          '<span class="deck-go">' + (isCurrent ? "↻" : "▶") + "</span>";
+        btn.addEventListener("click", function () { onPick(deck.id); });
+        els.deckList.appendChild(btn);
+      });
     }
 
     return {
@@ -1357,7 +1578,10 @@ main {
       markSelected: markSelected,
       toast: toast,
       showWin: showWin,
-      hideWin: hideWin
+      hideWin: function () { closeModal(els.modalWin); },
+      openModal: openModal,
+      closeModal: closeModal,
+      renderDeckList: renderDeckList
     };
   })();
 
@@ -1375,7 +1599,17 @@ main {
       return Ui.els.deckArea.querySelector('.word-card[data-id="' + escapeAttr(id) + '"]');
     }
 
-    function startGame() { Store.newGame(); }
+    function startGame(deckId) {
+      Store.newGame(deckId);
+      try { localStorage.setItem(STORAGE_DECK, deckId); } catch (e) {}
+    }
+
+    /* a restart mid-flight can leave an animated ghost behind */
+    function sweepGhosts() {
+      document.querySelectorAll(".drag-ghost").forEach(function (g) { g.remove(); });
+      document.querySelectorAll(".word-card.is-lifting").forEach(function (c) { c.classList.remove("is-lifting"); });
+      document.body.classList.remove("is-dragging");
+    }
 
     /* ---------- placement (shared by drag + tap + keyboard) ---------- */
 
@@ -1449,6 +1683,7 @@ main {
 
       /* store events → UI */
       Store.on("game-started", function (state) {
+        sweepGhosts();
         Ui.renderFoundations(state);
         Ui.renderDeck(state);
         Ui.updateStats(state);
@@ -1517,22 +1752,46 @@ main {
 
       $$("#btn-restart").addEventListener("click", function () {
         Sfx.shuffle();
-        startGame();
+        startGame(Store.get().deckId);
         Ui.toast("🔄 Deck reshuffled — good luck!");
+      });
+
+      /* --- deck selector modal --- */
+      function openDecksModal() {
+        Ui.renderDeckList(Store.get().deckId, function (deckId) {
+          Ui.closeModal(Ui.els.modalDecks);
+          Sfx.shuffle();
+          var isNew = deckId !== Store.get().deckId;
+          startGame(deckId);
+          var deck = null;
+          for (var i = 0; i < DECKS.length; i++) if (DECKS[i].id === deckId) deck = DECKS[i];
+          Ui.toast(isNew ? deck.emoji + " Switched to “" + deck.name + "”" : "🔄 Deck reshuffled — good luck!");
+        });
+        Ui.openModal(Ui.els.modalDecks);
+      }
+
+      $$("#btn-decks").addEventListener("click", openDecksModal);
+      $$("#btn-close-decks").addEventListener("click", function () { Ui.closeModal(Ui.els.modalDecks); });
+      Ui.els.modalDecks.addEventListener("click", function (e) {
+        if (e.target === Ui.els.modalDecks) Ui.closeModal(Ui.els.modalDecks);
       });
 
       /* victory modal */
       $$("#btn-play-again").addEventListener("click", function () {
         Ui.hideWin();
         Sfx.shuffle();
-        startGame();
+        startGame(Store.get().deckId);
       });
       $$("#btn-close-win").addEventListener("click", Ui.hideWin);
       Ui.els.modalWin.addEventListener("click", function (e) {
         if (e.target === Ui.els.modalWin) Ui.hideWin();
       });
       document.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") Ui.hideWin();
+        if (e.key === "Escape") {
+          document.querySelectorAll(".modal-overlay.is-open").forEach(function (m) {
+            Ui.closeModal(m);
+          });
+        }
       });
 
       /* audio unlock on first gesture (autoplay policy) */
@@ -1547,7 +1806,10 @@ main {
       /* clock ticks are cheap; Store.tick no-ops until first interaction */
       setInterval(Store.tick, 1000);
 
-      startGame();
+      /* restore the last played deck (starter basics by default) */
+      var savedDeck = null;
+      try { savedDeck = localStorage.getItem(STORAGE_DECK); } catch (e) {}
+      startGame(savedDeck || DECKS[0].id);
     }
 
     function updateSoundIcon() {
