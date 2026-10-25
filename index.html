@@ -202,7 +202,7 @@ main {
   align-items: center;
   justify-content: center;
   padding: 22px;
-  background: rgba(3, 12, 7, 0.72);
+  background: rgba(3, 10, 22, 0.76);
   backdrop-filter: blur(6px);
   -webkit-backdrop-filter: blur(6px);
 }
@@ -215,10 +215,10 @@ main {
   width: min(520px, 100%);
   max-height: min(84vh, 720px);
   overflow-y: auto;
-  background: linear-gradient(170deg, #10301f, #0a2114);
-  border: 1px solid var(--line-strong);
+  background: linear-gradient(170deg, #10345d, #081c33);
+  border: 1px solid rgba(146, 196, 255, 0.55);
   border-radius: var(--r-lg);
-  box-shadow: var(--shadow-panel), 0 0 60px rgba(52, 211, 153, 0.12);
+  box-shadow: var(--shadow-panel), 0 0 60px rgba(60, 130, 255, 0.16);
   padding: 28px;
 }
 
@@ -594,15 +594,15 @@ main {
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid var(--line);
-  background: rgba(5, 22, 14, 0.8);
+  border: 1px solid rgba(146, 196, 255, 0.3);
+  background: rgba(7, 25, 43, 0.9);
   color: var(--text-mid);
   cursor: pointer;
   flex: none;
   transition: color 160ms, border-color 160ms;
 }
 
-.modal-close:hover { color: var(--text-hi); border-color: var(--line-strong); }
+.modal-close:hover { color: var(--text-hi); border-color: rgba(146, 196, 255, 0.65); }
 
 .deck-option {
   display: flex;
@@ -613,8 +613,8 @@ main {
   margin-top: 12px;
   padding: 15px 16px;
   border-radius: var(--r-md);
-  border: 1.5px solid var(--line);
-  background: rgba(5, 22, 14, 0.55);
+  border: 1.5px solid rgba(146, 196, 255, 0.28);
+  background: rgba(7, 25, 43, 0.7);
   cursor: pointer;
   color: var(--text-hi);
   font-family: inherit;
@@ -622,14 +622,14 @@ main {
 }
 
 .deck-option:hover {
-  border-color: var(--line-strong);
-  background: rgba(12, 44, 28, 0.75);
+  border-color: rgba(146, 196, 255, 0.65);
+  background: rgba(20, 60, 102, 0.82);
   transform: translateY(-2px);
 }
 
 .deck-option.is-current {
-  border-color: var(--emerald-strong);
-  background: rgba(16, 185, 129, 0.12);
+  border-color: #438fdc;
+  background: rgba(24, 74, 120, 0.62);
 }
 
 .deck-emoji {
@@ -639,8 +639,8 @@ main {
   height: 46px;
   font-size: 1.45rem;
   border-radius: var(--r-md);
-  background: rgba(110, 231, 183, 0.12);
-  border: 1px solid rgba(110, 231, 183, 0.22);
+  background: rgba(120, 170, 255, 0.16);
+  border: 1px solid rgba(140, 190, 255, 0.28);
   flex: none;
 }
 
@@ -668,13 +668,13 @@ main {
   font-size: 0.72rem;
   font-weight: 600;
   color: var(--text-mid);
-  border: 1px solid var(--line);
+  border: 1px solid rgba(146, 196, 255, 0.28);
   border-radius: var(--r-pill);
   padding: 2px 9px;
-  background: rgba(5, 22, 14, 0.6);
+  background: rgba(7, 25, 43, 0.78);
 }
 
-.deck-go { flex: none; font-size: 0.95rem; color: var(--mint); }
+.deck-go { flex: none; font-size: 0.95rem; color: #8fc5ff; }
 
 .deck-level {
   display: inline-flex;
