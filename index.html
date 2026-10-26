@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='2' width='16' height='20' rx='3' fill='%23fcfdf9' stroke='%2334d399' stroke-width='1.6'/%3E%3Ctext x='12' y='16' font-size='10' text-anchor='middle' fill='%2310b981' font-family='sans-serif' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Nunito:wght@700;800;900&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Nunito:wght@700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
 
 <style>
 /* ======================================================================
@@ -52,7 +52,7 @@
   --r-sm: 8px;
   --r-pill: 999px;
 
-  --shadow-card: 0 1px 2px rgba(6, 20, 12, 0.35), 0 6px 14px rgba(6, 20, 12, 0.28);
+  --shadow-card: 0 2px 5px rgba(6, 22, 12, 0.28), 0 7px 16px rgba(5, 18, 10, 0.24);
   --shadow-lift: 0 18px 38px rgba(3, 14, 8, 0.55);
   --shadow-panel: 0 10px 34px rgba(2, 12, 7, 0.5), inset 0 1px 0 rgba(255, 255, 255, 0.06);
 
@@ -60,7 +60,23 @@
   --ease-out: cubic-bezier(0.22, 0.61, 0.36, 1);
 
   --font-main: "Inter", "Segoe UI", system-ui, -apple-system, sans-serif;
-  --font-cards: "Nunito", "Inter", "Segoe UI", system-ui, sans-serif;
+  --font-cards: "Playfair Display", Georgia, "Times New Roman", serif;
+  --font-serif: "Playfair Display", Georgia, "Times New Roman", serif;
+
+  /* ivory & gold card language (reference screenshot) */
+  --ivory: #f7f2e4;
+  --ivory-2: #efe7d2;
+  --ivory-3: #e6dabd;
+  --gold-line: #c9b487;
+  --gold-deep: #b09a5e;
+  --gold-bright: #e4c36a;
+  --ink-dark: #2e2a22;
+
+  /* solitaire column geometry */
+  --card-w: 218px;
+  --card-h: calc(var(--card-w) * 0.95);
+  --card-step: 46px;   /* exposed top strip of each hidden card */
+  --chip-step: 13px;   /* downward fan of sorted cards on a category card */
 }
 
 /* ======================================================================
@@ -650,7 +666,7 @@ main {
 .word-card[data-len="l"] .card-word { font-size: clamp(6.5px, 9.4cqw, 10.5px); }
 .word-card[data-len="xl"] .card-word { font-size: clamp(6px, 8.2cqw, 9.5px); }
 
-.word-card.is-lifting { opacity: 0.35; border-style: dashed; }
+.word-card.is-lifting:not(.drag-ghost) { opacity: 1; border-style: solid; }
 
 .word-card.is-selected {
   outline: 3px solid var(--gold);
@@ -1056,6 +1072,605 @@ main {
 @media (prefers-reduced-motion: reduce) {
   .word-card.is-selected { animation: none; }
 }
+
+/* Reference table layout */
+html {
+  min-height: 100%;
+  background: linear-gradient(180deg, #2876bd, #1c5c9f 62%, #164b82);
+}
+
+body {
+  background:
+    radial-gradient(ellipse at 50% 30%, #438dd0, transparent 66%),
+    linear-gradient(180deg, #2876bd, #1c5c9f 62%, #164b82);
+}
+
+.topbar {
+  flex-wrap: nowrap;
+  gap: 12px;
+  padding: 8px clamp(14px, 4vw, 54px);
+  background: linear-gradient(180deg, rgba(20, 67, 115, 0.98), rgba(12, 45, 82, 0.96));
+  border-bottom-color: rgba(219, 190, 119, 0.45);
+}
+
+.brand {
+  min-width: max-content;
+  gap: 10px;
+  padding: 3px 16px 3px 10px;
+  border: 1px solid rgba(218, 190, 121, 0.17);
+  border-radius: 15px;
+  background: rgba(8, 39, 74, 0.72);
+}
+
+.brand-icon {
+  width: 42px;
+  height: 42px;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.brand-text h1 {
+  color: #f7e8c4;
+  font: 700 clamp(1.15rem, 2.4vw, 1.8rem)/1 var(--font-serif);
+  white-space: nowrap;
+}
+
+.brand-text h1 span { color: inherit; }
+.brand-text p { display: none; }
+.level-group { gap: 5px; }
+
+.level-badge {
+  min-width: 96px;
+  padding: 8px 13px;
+  border-radius: 11px;
+  color: #f4d48c;
+  background: rgba(4, 35, 22, 0.92);
+  border: 1px solid rgba(201, 180, 135, 0.58);
+  box-shadow: inset 0 1px rgba(255,255,255,.08);
+  font: 700 1rem var(--font-serif);
+  letter-spacing: 0;
+}
+
+.level-total { display: none; }
+.lvl-btn { width: 26px; height: 26px; font-size: 0.62rem; }
+
+.stats-pill {
+  gap: 10px;
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.stat-time,
+.stat-errors {
+  min-width: 0;
+  padding: 8px 12px;
+  border: 1px solid rgba(201, 180, 135, 0.52);
+  border-radius: 11px;
+  color: #f6e8cc;
+  background: rgba(8, 38, 70, 0.94);
+}
+
+.progress-stat {
+  display: grid;
+  gap: 5px;
+  min-width: 178px;
+  color: #f1e4c8;
+  font: 600 0.85rem var(--font-serif);
+  white-space: nowrap;
+}
+
+.progress-label b { margin-left: 4px; font-weight: 700; }
+.progress-track {
+  display: block;
+  height: 11px;
+  overflow: hidden;
+  border: 1px solid rgba(160, 204, 174, 0.36);
+  border-radius: 99px;
+  background: rgba(5, 28, 53, 0.92);
+}
+
+.progress-track > span {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #05c987, #35e7a4);
+  box-shadow: 0 0 10px rgba(16, 216, 143, 0.45);
+  transition: width 240ms ease;
+}
+
+.stat-errors { color: #f6e8cc; }
+.stat-errors span:first-child { font-size: 1.02rem; }
+.topbar-actions { gap: 9px; }
+
+.topbar-actions .btn {
+  padding: 9px 14px;
+  border: 1px solid rgba(225, 194, 126, 0.74);
+  border-radius: 12px;
+  color: #fff5dc;
+  background: rgba(8, 38, 70, 0.96);
+  box-shadow: inset 0 1px rgba(255,255,255,.09);
+  font: 600 0.9rem var(--font-serif);
+}
+
+.topbar-actions .btn-amber { color: #fff5dc; }
+.topbar-actions #btn-decks {
+  border-color: rgba(230, 199, 137, 0.88);
+  background: linear-gradient(180deg, #3989d2, #2468a8);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.22), 0 3px 10px rgba(2, 18, 39, 0.28);
+}
+.topbar-actions .btn-icon { width: 38px; height: 38px; padding: 8px; }
+
+#modal-decks .modal-card {
+  background:
+    radial-gradient(ellipse at 50% 30%, #438dd0, transparent 66%),
+    linear-gradient(180deg, #2876bd, #1c5c9f 62%, #164b82);
+  border-color: rgba(219, 190, 119, 0.78);
+}
+
+#modal-decks .modal-sub,
+#modal-decks .deck-tagline { color: #c8e2fb; }
+
+#modal-decks .modal-close {
+  color: #e7f2ff;
+  background: #123f6c;
+  border-color: rgba(190, 218, 246, 0.45);
+}
+
+#modal-decks .modal-close:hover { border-color: var(--gold); }
+
+#modal-decks .deck-option {
+  color: #f2f8ff;
+  background: rgba(10, 47, 84, 0.78);
+  border-color: rgba(168, 204, 238, 0.34);
+}
+
+#modal-decks .deck-option:hover {
+  background: rgba(39, 112, 177, 0.82);
+  border-color: rgba(219, 190, 119, 0.74);
+}
+
+#modal-decks .deck-option.is-current {
+  background: rgba(49, 126, 190, 0.62);
+  border-color: var(--gold);
+}
+
+#modal-decks .deck-emoji {
+  background: rgba(107, 171, 226, 0.18);
+  border-color: rgba(168, 204, 238, 0.42);
+}
+
+#modal-decks .deck-name .current-tag {
+  color: #103b68;
+  background: #d5eaff;
+}
+
+#modal-decks .deck-cats span {
+  color: #e2f1ff;
+  background: rgba(5, 32, 59, 0.68);
+  border-color: rgba(168, 204, 238, 0.32);
+}
+
+#modal-decks .deck-go { color: #f5d98f; }
+main { width: min(100%, 1120px); padding: 18px 24px 30px; }
+.category-section { margin-bottom: 34px; }
+
+.foundations-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(12px, 4vw, 56px);
+  width: min(100%, 850px);
+}
+
+.foundation {
+  padding: 0;
+  border: 0;
+  border-radius: 13px;
+}
+
+.pile-slot {
+  width: 100%;
+  max-width: 166px;
+  aspect-ratio: 0.82;
+  margin: 0 auto;
+  overflow: hidden;
+  border: 1px solid #cdb98d;
+  border-radius: 15px;
+  background:
+    radial-gradient(ellipse at 50% 18%, #fffdf7 0%, #f9edda 68%, #f0dfc1 100%);
+  box-shadow: 0 4px 8px rgba(0, 0, 0, .28), 0 12px 18px rgba(0, 0, 0, .18), inset 0 0 0 4px rgba(255,255,255,.45);
+}
+
+.pile-base {
+  display: none;
+}
+
+.category-art {
+  display: grid;
+  place-items: center;
+  position: absolute;
+  inset: 10px 10px 48px;
+  border-radius: 10px;
+  background: radial-gradient(ellipse at center, rgba(255,255,255,.72), transparent 72%);
+}
+
+.category-emoji {
+  font-size: clamp(58px, 7vw, 92px);
+  line-height: 1;
+  filter: drop-shadow(0 5px 4px rgba(53, 34, 8, .18));
+}
+
+.card-illustration {
+  display: block;
+  width: clamp(78px, 10vw, 118px);
+  height: auto;
+  max-width: 100%;
+  overflow: visible;
+}
+
+.category-art .card-illustration {
+  width: clamp(68px, 8.5vw, 104px);
+}
+.category-title {
+  position: absolute;
+  left: 7px;
+  right: 7px;
+  bottom: 8px;
+  z-index: 2;
+  display: grid;
+  gap: 1px;
+  justify-items: center;
+  color: #171813;
+  font: 700 clamp(.9rem, 1.55vw, 1.25rem)/1.12 var(--font-serif);
+  text-align: center;
+}
+
+.category-title [data-count] {
+  color: #24241f;
+  font: 700 .95em var(--font-serif);
+  padding: 0;
+  border: 0;
+  border-radius: 0;
+  background: transparent;
+}
+
+.foundation-head { display: none; }
+.pile-stack { inset: auto 6px 47px; height: 28px; z-index: 3; }
+.pile-chip {
+  bottom: 0;
+  padding: 3px 6px;
+  font-size: .64rem;
+  transform: translateX(-50%) translateY(calc(var(--i) * -7px)) rotate(var(--rot, 0deg));
+}
+.pile-hint {
+  top: auto;
+  bottom: 48px;
+  padding: 3px 8px;
+  font-size: .58rem;
+  opacity: 0;
+  transition: opacity 140ms ease;
+}
+
+.foundation.drop-hover .pile-hint { opacity: 1; }
+.foundation.drop-hover .pile-slot { transform: translateY(-3px) scale(1.025); }
+.foundation.is-complete .pile-slot { box-shadow: 0 0 0 3px var(--gold), 0 0 24px rgba(245,196,81,.32); }
+
+.deck-area {
+  --card-w: 166px;
+  --card-step: 49px;
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  justify-items: center;
+  align-items: start;
+  gap: 0 clamp(12px, 4vw, 56px);
+  width: min(100%, 850px);
+  min-height: 390px;
+  margin: 0 auto;
+  padding: 0;
+}
+
+.tableau-column {
+  position: relative;
+  width: min(100%, var(--card-w));
+  height: calc(190px + 4 * var(--card-step));
+}
+
+.word-card {
+  position: absolute;
+  left: 0;
+  top: calc(var(--stack-index, 0) * var(--card-step));
+  width: 100%;
+  height: 190px;
+  margin: 0;
+  overflow: hidden;
+  border: 1px solid #cdb98d;
+  border-radius: 13px;
+  background: linear-gradient(180deg, #fffaf0, #f1e3cc);
+  box-shadow: 0 3px 7px rgba(0,0,0,.27), 0 8px 14px rgba(0,0,0,.16), inset 0 0 0 3px rgba(255,255,255,.45);
+  transform: none;
+  z-index: calc(10 - var(--stack-index, 0));
+}
+
+.word-card::after {
+  inset: 5px;
+  border: 1px solid rgba(166, 133, 77, .2);
+  border-radius: 9px;
+}
+
+.word-card.is-stacked {
+  pointer-events: none;
+}
+
+.word-card.is-stacked .card-word { visibility: hidden; }
+.word-card.is-stacked .card-art {
+  position: absolute;
+  right: 5px;
+  bottom: 5px;
+  left: 5px;
+  height: 42px;
+  min-height: 42px;
+  margin: 0;
+  padding: 0;
+  background: linear-gradient(180deg, rgba(255, 255, 255, .62), var(--tint, #f4ecdb));
+  box-shadow: inset 0 0 0 1px rgba(94, 70, 28, .1);
+}
+.word-card.is-stacked .card-emoji { font-size: 36px; }
+.word-card.is-stacked .card-illustration { width: 36px; height: 36px; }
+
+.word-card:hover,
+.word-card.is-selected {
+  transform: translateY(-3px);
+  z-index: 20;
+}
+
+.card-art {
+  flex: 1;
+  min-height: 0;
+  margin: 8px 8px 0;
+  aspect-ratio: auto;
+  border-radius: 9px;
+  background: radial-gradient(ellipse at 50% 45%, rgba(255,255,255,.85), var(--tint, #f4ecdb));
+  box-shadow: none;
+}
+
+.card-emoji {
+  font-size: clamp(48px, 5.5vw, 76px);
+  filter: drop-shadow(0 4px 3px rgba(40, 24, 4, .16));
+}
+
+.word-card .card-illustration {
+  width: clamp(82px, 9vw, 116px);
+  height: auto;
+}
+
+.pile-chip .card-illustration { width: 22px; height: 22px; }
+
+.card-word {
+  flex: none;
+  min-height: 38px;
+  padding: 5px 8px 10px;
+  color: #1b1a16;
+  font-size: clamp(1rem, 1.5vw, 1.25rem);
+  overflow-wrap: anywhere;
+}
+
+.word-card[data-len="m"] .card-word,
+.word-card[data-len="l"] .card-word,
+.word-card[data-len="xl"] .card-word { font-size: clamp(.78rem, 1.2vw, 1rem); }
+
+.deck-empty {
+  grid-column: 1 / -1;
+  width: 100%;
+  padding: 40px 12px;
+  border: 1px solid rgba(219,190,119,.35);
+  border-radius: 16px;
+  background: rgba(2, 29, 17, .6);
+}
+
+.app-footer { display: none; }
+
+@media (max-width: 900px) {
+  .topbar { flex-wrap: wrap; justify-content: space-between; }
+  .brand { order: 0; }
+  .level-group { order: 1; margin-left: auto; }
+  .stats-pill { order: 2; }
+  .topbar-actions { order: 3; }
+  main { width: min(100%, 760px); }
+  .foundations-row, .deck-area { width: min(100%, 640px); gap: 14px; }
+  .pile-slot { max-width: 150px; }
+  .deck-area { --card-w: 150px; --card-step: 44px; min-height: 360px; }
+  .tableau-column { height: calc(176px + 4 * var(--card-step)); }
+  .word-card { height: 176px; }
+}
+
+@media (max-width: 600px) {
+  .topbar { gap: 7px; padding: 8px 10px; }
+  .brand { order: 0; padding: 2px 7px; }
+  .brand-icon { width: 32px; height: 32px; }
+  .brand-text h1 { font-size: 1.05rem; }
+  .level-group { order: 1; margin-left: 0; }
+  .stats-pill { order: 2; margin-left: auto; gap: 5px; }
+  .progress-stat { min-width: 104px; font-size: .7rem; }
+  .progress-track { height: 8px; }
+  .stat-time, .stat-errors { padding: 6px 7px; font-size: .75rem; }
+  .topbar-actions { order: 3; width: 100%; justify-content: center; }
+  .topbar-actions .btn { padding: 7px 12px; font-size: .78rem; }
+  .topbar-actions .btn-icon { width: 32px; height: 32px; }
+  main { padding: 14px 12px 24px; }
+  .category-section { margin-bottom: 22px; }
+  .foundations-row, .deck-area { width: min(100%, 410px); gap: 12px 18px; }
+  .foundations-row { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .pile-slot { max-width: 136px; }
+  .category-art { inset: 6px 6px 39px; }
+  .category-emoji { font-size: clamp(46px, 13vw, 70px); }
+  .category-title { bottom: 6px; font-size: clamp(.72rem, 3.7vw, 1rem); }
+  .category-title [data-count] { font-size: .85em; }
+  .pile-stack { bottom: 38px; height: 24px; }
+  .pile-chip { padding: 2px 5px; font-size: .56rem; }
+  .deck-area { grid-template-columns: repeat(2, minmax(0, 1fr)); --card-w: 136px; --card-step: 38px; min-height: 0; }
+  .tableau-column { height: calc(156px + 4 * var(--card-step)); }
+  .word-card { height: 156px; }
+  .card-art { margin: 6px 6px 0; }
+  .card-emoji { font-size: clamp(44px, 12vw, 62px); }
+  .word-card.is-stacked .card-emoji { font-size: 32px; }
+  .word-card .card-illustration { width: clamp(62px, 21vw, 86px); }
+  .category-art .card-illustration { width: clamp(54px, 16vw, 74px); }
+  .word-card.is-stacked .card-illustration { width: 30px; height: 30px; }
+  .card-word { min-height: 34px; padding-bottom: 7px; font-size: .98rem; }
+  .word-card[data-len="m"] .card-word,
+  .word-card[data-len="l"] .card-word,
+  .word-card[data-len="xl"] .card-word { font-size: .78rem; }
+}
+
+@media (max-width: 370px) {
+  .brand-text h1 { font-size: .9rem; }
+  .brand-icon { width: 28px; }
+  .level-badge { min-width: 74px; padding: 6px 8px; font-size: .8rem; }
+  .lvl-btn { width: 22px; height: 22px; }
+  .progress-stat { min-width: 88px; }
+  .stat-errors span:first-child { display: none; }
+  .foundations-row, .deck-area { gap: 10px; }
+  .pile-slot { max-width: 126px; }
+  .deck-area { --card-w: 126px; }
+}
+
+/* Fill the viewport with a fluid, responsive game table. */
+html,
+body { min-height: 100%; }
+
+body { min-height: 100vh; min-height: 100dvh; }
+
+main {
+  display: flex;
+  flex: 1 0 auto;
+  flex-direction: column;
+  justify-content: space-evenly;
+  gap: clamp(10px, 1.6vh, 18px);
+  width: 100%;
+  max-width: none;
+  padding: clamp(10px, 1.8vh, 18px) clamp(14px, 3.5vw, 52px);
+}
+
+.category-section { margin: 0; }
+
+.foundations-row,
+.deck-area {
+  width: min(100%, 1320px);
+}
+
+.foundations-row {
+  gap: clamp(12px, 4vw, 56px);
+}
+
+.pile-slot {
+  width: min(100%, clamp(160px, 18vw, 220px));
+  max-width: none;
+  height: clamp(150px, 23vh, 205px);
+  aspect-ratio: auto;
+}
+
+.deck-area {
+  --card-w: clamp(166px, 18vw, 232px);
+  --card-h: clamp(168px, 25vh, 230px);
+  --card-step: clamp(36px, 7.2vh, 64px);
+  min-height: 0;
+}
+
+.tableau-column {
+  height: calc(var(--card-h) + 4 * var(--card-step));
+}
+
+.word-card { height: var(--card-h); }
+
+@media (max-height: 700px) and (min-width: 601px) {
+  .pile-slot { height: clamp(126px, 22vh, 160px); }
+  .deck-area {
+    --card-h: clamp(132px, 23vh, 176px);
+    --card-step: clamp(30px, 6.5vh, 46px);
+  }
+}
+
+@media (max-width: 600px) {
+  main {
+    flex: 1 0 auto;
+    justify-content: flex-start;
+    gap: 12px;
+    padding: 10px 10px 14px;
+  }
+
+  .foundations-row,
+  .deck-area { width: min(100%, 410px); }
+  .foundations-row { gap: 8px 12px; }
+  .pile-slot {
+    width: min(100%, 136px);
+    height: clamp(106px, 13vh, 128px);
+  }
+  .category-art { inset: 5px 5px 34px; }
+  .category-emoji { font-size: clamp(40px, 12vw, 54px); }
+  .category-title {
+    left: 4px;
+    right: 4px;
+    bottom: 4px;
+    font-size: clamp(.66rem, 3.4vw, .85rem);
+  }
+  .category-title [data-count] { font-size: .82em; }
+
+  .deck-area {
+    --card-w: clamp(126px, 36vw, 160px);
+    --card-h: clamp(106px, 13vh, 132px);
+    --card-step: clamp(22px, 3.1vh, 28px);
+    gap: 8px 18px;
+  }
+}
+
+@media (min-width: 769px) and (max-width: 1100px) {
+  .topbar {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
+  .topbar-actions {
+    flex-basis: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 370px) {
+  .topbar {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    justify-items: center;
+    gap: 6px;
+  }
+
+  .level-group {
+    grid-row: 1;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .stats-pill {
+    grid-row: 2;
+    justify-content: center;
+    width: auto;
+    max-width: 100%;
+    margin: 0;
+  }
+
+  .topbar-actions {
+    grid-row: 3;
+    width: 100%;
+    justify-content: center;
+    margin: 0;
+  }
+
+  .deck-area {
+    --card-w: clamp(100px, 36vw, 160px);
+  }
+}
 </style>
 </head>
 <body>
@@ -1064,23 +1679,22 @@ main {
 <header class="topbar">
   <div class="brand">
     <div class="brand-icon" aria-hidden="true">
-      <svg viewBox="0 0 24 24" width="24" height="24" fill="none" stroke="currentColor" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3.5" y="4.5" width="9.5" height="14.5" rx="2.2" transform="rotate(-9 8.25 11.75)"></rect>
-        <rect x="11" y="4" width="9.5" height="14.5" rx="2.2" transform="rotate(9 15.75 11.25)"></rect>
-        <path d="M12 9.2l.9 1.8 2 .3-1.45 1.4.35 2-1.8-.95-1.8.95.35-2L9.1 11.3l2-.3z" fill="currentColor" stroke="none"></path>
+      <svg viewBox="0 0 32 28" width="32" height="28" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round" aria-hidden="true">
+        <path d="M16 7C12 2 5 2 2 4v19c5-2 10-1 14 3 4-4 9-5 14-3V4c-3-2-10-2-14 3Z" fill="rgba(245,196,81,.16)"></path>
+        <path d="M16 7v19M5 7c3-1 6 0 8 2m14-2c-3-1-6 0-8 2"></path>
       </svg>
     </div>
     <div class="brand-text">
       <h1>Vocab<span>Solitaire</span></h1>
-      <p>CATEGORIZE &amp; MASTER WORDS</p>
+      <p>WORD-CATEGORY SOLITAIRE</p>
     </div>
   </div>
 
   <div class="level-group" role="group" aria-label="Level selection">
-    <button class="lvl-btn" id="btn-level-prev" title="Previous unlocked level" aria-label="Previous level">◀</button>
     <div class="level-badge" id="level-badge" title="Current level">
-      LEVEL&nbsp;<span id="level-value">01</span><span class="level-total">/15</span>
+    Level&nbsp;<span id="level-value">1</span><span class="level-total">/15</span>
     </div>
+    <button class="lvl-btn" id="btn-level-prev" title="Previous unlocked level" aria-label="Previous level">◀</button>
     <button class="lvl-btn" id="btn-level-next" title="Next unlocked level" aria-label="Next level">▶</button>
   </div>
 
@@ -1091,17 +1705,12 @@ main {
       </svg>
       <span id="time-value">00:00</span>
     </span>
-    <span class="stat stat-score" id="stat-score" title="Correct cards">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
-        <polyline points="20 6 9 17 4 12"></polyline>
-      </svg>
-      <span id="score-value">0 / 20</span>
+    <span class="progress-stat" id="stat-score" title="Correct cards">
+      <span class="progress-label">Progress: <b id="score-value">0 / 20</b></span>
+      <span class="progress-track" aria-hidden="true"><span id="progress-fill"></span></span>
     </span>
     <span class="stat stat-errors" id="stat-errors" title="Mistakes">
-      <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-        <line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line>
-      </svg>
+      <span aria-hidden="true">❤️</span>
       <span id="errors-value">0</span>
     </span>
   </div>
@@ -1125,32 +1734,24 @@ main {
     </button>
     <button class="btn btn-amber" id="btn-decks" title="Choose a vocabulary deck">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
-        <rect x="3" y="3" width="7" height="7" rx="1.5"></rect><rect x="14" y="3" width="7" height="7" rx="1.5"></rect>
-        <rect x="14" y="14" width="7" height="7" rx="1.5"></rect><rect x="3" y="14" width="7" height="7" rx="1.5"></rect>
+        <rect x="4" y="3" width="13" height="17" rx="1.5"></rect><path d="M8 7h5M8 11h5"></path><path d="M19 7v14H7"></path>
       </svg>
-      Decks
+      New Deck
     </button>
   </div>
 </header>
 
 <!-- ============================ PLAY FIELD ============================ -->
 <main>
-  <section aria-label="Target categories">
-    <h2 class="section-label">🃏 Foundation Piles <small>— drop each word on the category it belongs to</small></h2>
+  <section class="category-section" aria-label="Target categories">
     <div class="foundations-row" id="foundations-row"><!-- rendered by JS --></div>
   </section>
-
-  <div class="deck-divider">
-    <span class="mini-stack" aria-hidden="true"><span class="mini-back"></span><span class="mini-back"></span><span class="mini-back"></span></span>
-    <span class="divider-title">Shuffled Deck</span>
-    <span class="left-badge" id="cards-left">20 Left</span>
-  </div>
 
   <section class="deck-area" id="deck-area" aria-label="Word cards to sort"><!-- rendered by JS --></section>
 </main>
 
 <footer class="app-footer">
-  <p class="footer-note">Drag each word into the category it belongs to — any order you like. On touch screens: tap a card, then tap a pile. Wrong drops just bounce back!</p>
+  <p class="footer-note">Drag each word onto its category — or tap a card, then tap a category.</p>
 </footer>
 
 <!-- ============================ DECKS MODAL ============================ -->
@@ -1212,9 +1813,9 @@ main {
       id: "starter", emoji: "🎴", name: "Starter Basics",
       tagline: "Classic everyday categories — perfect first shuffle.",
       categories: [
-        { id: "animals", name: "Animals", icon: "🐾", color: "#f59e0b", soft: "rgba(245, 158, 11, 0.2)", line: "rgba(245, 158, 11, 0.55)" },
-        { id: "food", name: "Food", icon: "🍴", color: "#ef4444", soft: "rgba(239, 68, 68, 0.2)", line: "rgba(239, 68, 68, 0.55)" },
-        { id: "transport", name: "Transportation", icon: "✈️", color: "#3b82f6", soft: "rgba(59, 130, 246, 0.2)", line: "rgba(59, 130, 246, 0.55)" },
+        { id: "animals", name: "Animals", icon: "🐶", color: "#f59e0b", soft: "rgba(245, 158, 11, 0.2)", line: "rgba(245, 158, 11, 0.55)" },
+        { id: "food", name: "Food", icon: "🍎", color: "#ef4444", soft: "rgba(239, 68, 68, 0.2)", line: "rgba(239, 68, 68, 0.55)" },
+        { id: "transport", name: "Transportation", icon: "🚗", color: "#3b82f6", soft: "rgba(59, 130, 246, 0.2)", line: "rgba(59, 130, 246, 0.55)" },
         { id: "clothing", name: "Clothing", icon: "👕", color: "#a855f7", soft: "rgba(168, 85, 247, 0.2)", line: "rgba(168, 85, 247, 0.55)" }
       ],
       levels: [
@@ -1509,9 +2110,149 @@ main {
     "Map":"🗺️","Maestro":"🎩","Envy":"💚","Requiem":"🪦"
   };
 
+  function svgArt(id, art) {
+    var key = "vocab-art-" + id;
+    art = art.replace(/url\(#vocab-art-(?:dog-)?(main|blue|green|red|cream)\)/g, "url(#" + key + "-$1)");
+    return '<svg class="card-illustration" viewBox="0 0 128 128" role="img" aria-hidden="true">' +
+      '<defs>' +
+      '<linearGradient id="' + key + '-main" x1="0" y1="0" x2=".18" y2="1">' +
+      '<stop offset="0" stop-color="#fff5cf"/><stop offset=".18" stop-color="#ffd985"/><stop offset=".56" stop-color="#f4a04f"/><stop offset="1" stop-color="#c95f46"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="' + key + '-blue" x1="0" y1="0" x2=".08" y2="1">' +
+      '<stop offset="0" stop-color="#c8f5ff"/><stop offset=".16" stop-color="#83d8f5"/><stop offset=".55" stop-color="#438fd7"/><stop offset="1" stop-color="#355bb0"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="' + key + '-green" x1="0" y1="0" x2=".08" y2="1">' +
+      '<stop offset="0" stop-color="#e2ffb8"/><stop offset=".18" stop-color="#a9ea82"/><stop offset=".58" stop-color="#55bf79"/><stop offset="1" stop-color="#25866d"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="' + key + '-red" x1="0" y1="0" x2=".08" y2="1">' +
+      '<stop offset="0" stop-color="#ffd0ac"/><stop offset=".16" stop-color="#ff8879"/><stop offset=".55" stop-color="#ed4d69"/><stop offset="1" stop-color="#aa2e65"/>' +
+      '</linearGradient>' +
+      '<linearGradient id="' + key + '-cream" x1="0" y1="0" x2=".08" y2="1">' +
+      '<stop offset="0" stop-color="#fffefa"/><stop offset=".2" stop-color="#fff1ce"/><stop offset=".64" stop-color="#e8d09c"/><stop offset="1" stop-color="#ad8056"/>' +
+      '</linearGradient>' +
+      '<filter id="' + key + '-shadow" x="-30%" y="-30%" width="160%" height="170%">' +
+      '<feGaussianBlur in="SourceAlpha" stdDeviation="2.5" result="shadow-blur"/>' +
+      '<feOffset in="shadow-blur" dx="0" dy="5" result="shadow-offset"/>' +
+      '<feComponentTransfer in="shadow-offset" result="soft-shadow"><feFuncA type="linear" slope=".24"/></feComponentTransfer>' +
+      '<feGaussianBlur in="SourceAlpha" stdDeviation="1.1" result="surface"/>' +
+      '<feSpecularLighting in="surface" surfaceScale="3" specularConstant=".48" specularExponent="22" lighting-color="#fff" result="shine">' +
+      '<fePointLight x="-90" y="-110" z="170"/>' +
+      '</feSpecularLighting>' +
+      '<feComposite in="shine" in2="SourceAlpha" operator="in" result="surface-shine"/>' +
+      '<feComponentTransfer in="surface-shine" result="soft-shine"><feFuncA type="linear" slope=".34"/></feComponentTransfer>' +
+      '<feMerge><feMergeNode in="soft-shadow"/><feMergeNode in="SourceGraphic"/><feMergeNode in="soft-shine"/></feMerge>' +
+      '</filter>' +
+      '</defs><g filter="url(#' + key + '-shadow)">' + art + '</g></svg>';
+  }
+
+  var SVG_ART = {
+    Dog: svgArt("dog",
+      '<path d="M38 39C24 20 12 31 20 59l12 16 14-16M90 39c14-19 26-8 18 20L96 75 82 59" fill="#bd7046" stroke="#8b4d35" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M34 43c0-15 12-23 30-23s30 8 30 23v35c0 21-13 33-30 33S34 99 34 78Z" fill="url(#vocab-art-dog-main)"/>' +
+      '<ellipse cx="49" cy="58" rx="4" ry="5" fill="#3e302b"/><ellipse cx="79" cy="58" rx="4" ry="5" fill="#3e302b"/>' +
+      '<ellipse cx="64" cy="76" rx="21" ry="15" fill="#fff0d5"/><ellipse cx="64" cy="70" rx="7" ry="5" fill="#44342e"/>' +
+      '<path d="M64 75v7c0 7-8 7-9 2" fill="none" stroke="#714333" stroke-width="3" stroke-linecap="round"/>' +
+      '<path d="M62 85h5c5 0 4 10-2 11-6-1-8-11-3-11Z" fill="#f06b7a"/>'),
+    Cat: svgArt("cat",
+      '<path d="m29 48 3-28 25 17c5-2 10-2 15 0l24-17 3 29c7 9 10 18 8 31-4 22-20 34-43 34S25 101 21 79c-2-13 1-23 8-31Z" fill="url(#vocab-art-dog-main)" stroke="#b56840" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="m38 39 13 7-15 12ZM90 39l-13 7 15 12Z" fill="#f58a89"/>' +
+      '<ellipse cx="49" cy="65" rx="4" ry="6" fill="#39413e"/><ellipse cx="79" cy="65" rx="4" ry="6" fill="#39413e"/>' +
+      '<path d="m60 77 4-3 4 3-4 5Z" fill="#d95a70"/><path d="M64 82v7m0 0c-6 6-12 2-12-2m12 2c6 6 12 2 12-2" fill="none" stroke="#714333" stroke-width="2.5" stroke-linecap="round"/>' +
+      '<path d="M47 81 22 76m25 11-24 4m58-10 25-5m-25 12 24 4" fill="none" stroke="#8c5841" stroke-width="2" stroke-linecap="round"/>'),
+    Cow: svgArt("cow",
+      '<path d="m37 38-15-13 2 23m67-10 15-13-2 23" fill="#fff5de" stroke="#9b6952" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M34 43c0-18 13-27 30-27s30 9 30 27v37c0 21-13 34-30 34S34 101 34 80Z" fill="url(#vocab-art-cream)" stroke="#b59162" stroke-width="3"/>' +
+      '<path d="M40 43c-3-11 10-17 18-9l-2 18-15 5Zm48-1c3-11-10-17-18-9l2 18 15 5Z" fill="#373d45"/>' +
+      '<ellipse cx="49" cy="63" rx="4" ry="5" fill="#3e302b"/><ellipse cx="79" cy="63" rx="4" ry="5" fill="#3e302b"/>' +
+      '<ellipse cx="64" cy="82" rx="25" ry="17" fill="#f29b9b"/><circle cx="55" cy="81" r="3" fill="#a85f66"/><circle cx="73" cy="81" r="3" fill="#a85f66"/>'),
+    Fish: svgArt("fish",
+      '<path d="M30 65C45 39 82 37 98 64c-17 28-53 28-68 1Z" fill="url(#vocab-art-blue)" stroke="#3575c2" stroke-width="3"/>' +
+      '<path d="m96 64 22-20v40L96 65Z" fill="url(#vocab-art-red)" stroke="#b54862" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M57 43 69 27l13 19m-26 35-10 15 25-9" fill="#6cd2d1" stroke="#3575c2" stroke-width="3" stroke-linejoin="round"/>' +
+      '<circle cx="46" cy="58" r="5" fill="#fff"/><circle cx="47" cy="58" r="2.5" fill="#263958"/>' +
+      '<path d="M37 75c10 8 20 10 30 9" fill="none" stroke="#b6efff" stroke-width="3" stroke-linecap="round"/>'),
+    Bird: svgArt("bird",
+      '<path d="M25 71c0-23 18-42 42-42 22 0 37 15 37 37 0 23-17 39-41 39-22 0-38-13-38-34Z" fill="url(#vocab-art-blue)" stroke="#3875ba" stroke-width="3"/>' +
+      '<path d="M52 65c13-17 30-13 37 1-7 16-22 23-37 19 7-6 10-13 0-20Z" fill="url(#vocab-art-green)" stroke="#438c65" stroke-width="2"/>' +
+      '<path d="m101 58 20 9-20 9Z" fill="#ffbd62" stroke="#c98142" stroke-width="2" stroke-linejoin="round"/>' +
+      '<circle cx="88" cy="55" r="5" fill="#fff"/><circle cx="89" cy="55" r="2.5" fill="#293c5c"/>' +
+      '<path d="M59 105v10m18-10v10m-25 2h18m-10-2h19" fill="none" stroke="#bd7743" stroke-width="3" stroke-linecap="round"/>'),
+    Apple: svgArt("apple",
+      '<path d="M64 43c-16-14-44-5-46 22-2 23 17 48 37 48 5 0 7-3 9-3s5 3 10 3c20 0 39-25 37-48-2-27-30-36-47-22Z" fill="url(#vocab-art-red)" stroke="#c9474f" stroke-width="3"/>' +
+      '<path d="M63 45c-4-13-1-23 4-32" fill="none" stroke="#79502d" stroke-width="6" stroke-linecap="round"/>' +
+      '<path d="M68 29c12-17 30-14 35-13-5 17-19 25-34 21Z" fill="url(#vocab-art-green)" stroke="#4a9a5a" stroke-width="2"/>' +
+      '<path d="M34 67c3-11 11-16 19-17" fill="none" stroke="#ffc4a1" stroke-width="5" stroke-linecap="round"/>'),
+    Egg: svgArt("egg",
+      '<path d="M64 19c-20 0-39 35-39 62 0 23 17 36 39 36s39-13 39-36c0-27-19-62-39-62Z" fill="#fff0c9" stroke="#bd945d" stroke-width="4"/>' +
+      '<ellipse cx="48" cy="53" rx="7" ry="15" fill="#fff" opacity=".72"/><circle cx="79" cy="62" r="2" fill="#e7d19f"/><circle cx="71" cy="77" r="2" fill="#e7d19f"/><circle cx="54" cy="91" r="2" fill="#e7d19f"/>' +
+      '<path d="M40 84c4 13 14 19 25 19" fill="none" stroke="#e3c993" stroke-width="3" stroke-linecap="round"/>'),
+    Milk: svgArt("milk",
+      '<path d="M42 17h35l15 19v76H36V36l6-19Z" fill="url(#vocab-art-blue)" stroke="#4d91c5" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M42 17 36 36h57L77 17Z" fill="#d9f6ff" stroke="#75b9df" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M48 54h40v43H48Z" rx="8" fill="#fffdf3" opacity=".94"/>' +
+      '<path d="M56 69c5-10 18-10 24 0v14H56Z" fill="#a5daf1"/><path d="M55 88h26" stroke="#69aed8" stroke-width="3" stroke-linecap="round"/>'),
+    Rice: svgArt("rice",
+      '<ellipse cx="64" cy="78" rx="46" ry="19" fill="#7cb8df"/><path d="M22 75c4 26 19 39 42 39s38-13 42-39Z" fill="url(#vocab-art-blue)" stroke="#4488bb" stroke-width="3"/>' +
+      '<ellipse cx="64" cy="70" rx="42" ry="19" fill="#fffdf2" stroke="#c6d5df" stroke-width="3"/>' +
+      '<g fill="#f3e6ce" stroke="#ddceb1" stroke-width="1"><ellipse cx="43" cy="68" rx="7" ry="3"/><ellipse cx="57" cy="61" rx="7" ry="3"/><ellipse cx="72" cy="67" rx="7" ry="3"/><ellipse cx="84" cy="62" rx="7" ry="3"/><ellipse cx="59" cy="75" rx="7" ry="3"/><ellipse cx="75" cy="77" rx="7" ry="3"/></g>' +
+      '<path d="M39 92c9 11 40 15 52 0" fill="none" stroke="#b8e4f5" stroke-width="3" stroke-linecap="round"/>'),
+    Bread: svgArt("bread",
+      '<path d="M24 56c0-20 17-34 40-34s40 14 40 34v47H24Z" fill="url(#vocab-art-main)" stroke="#b6743d" stroke-width="3"/>' +
+      '<path d="M35 54c2-15 12-21 24-22m-13 35c2-12 9-18 20-21m7-12c11 5 17 15 17 28" fill="none" stroke="#ffe2a0" stroke-width="5" stroke-linecap="round"/>' +
+      '<path d="M23 100h82v12H23Z" rx="5" fill="#d88b4f"/><ellipse cx="40" cy="85" rx="3" ry="2" fill="#d68b4e"/><ellipse cx="82" cy="91" rx="3" ry="2" fill="#d68b4e"/>'),
+    Car: svgArt("car",
+      '<path d="m20 78 8-22c2-6 7-9 14-10l16-23h26l19 24c7 2 12 7 14 14l3 17v16H17V80Z" fill="url(#vocab-art-blue)" stroke="#3166aa" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="m48 49 14-18h18l15 19Zm-14 7h62" fill="#d8f5ff" stroke="#5796c8" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M19 76h14m70 0h15" stroke="#ffe28a" stroke-width="6" stroke-linecap="round"/>' +
+      '<circle cx="40" cy="91" r="12" fill="#343b4a"/><circle cx="40" cy="91" r="5" fill="#cbd5de"/><circle cx="94" cy="91" r="12" fill="#343b4a"/><circle cx="94" cy="91" r="5" fill="#cbd5de"/>'),
+    Bus: svgArt("bus",
+      '<path d="M20 31c0-9 7-15 16-15h56c10 0 17 7 17 17v62c0 8-6 14-14 14H34c-8 0-14-6-14-14Z" fill="url(#vocab-art-blue)" stroke="#3269a7" stroke-width="4"/>' +
+      '<path d="M30 31h69v36H30Z" fill="#d8f6ff" stroke="#5290bd" stroke-width="3"/>' +
+      '<path d="M47 32v34m18-34v34m18-34v34" stroke="#72b1d5" stroke-width="3"/>' +
+      '<path d="M27 78h74" stroke="#ffd36d" stroke-width="7"/>' +
+      '<circle cx="42" cy="101" r="11" fill="#313b4c"/><circle cx="42" cy="101" r="4" fill="#d2dce3"/><circle cx="87" cy="101" r="11" fill="#313b4c"/><circle cx="87" cy="101" r="4" fill="#d2dce3"/>'),
+    Bike: svgArt("bike",
+      '<circle cx="31" cy="87" r="23" fill="none" stroke="#4387c1" stroke-width="5"/><circle cx="98" cy="87" r="23" fill="none" stroke="#4387c1" stroke-width="5"/>' +
+      '<path d="m31 87 22-35 20 35H31l18-27h27l22 27m-48-40h14m19 0 9 13m13-13h10" fill="none" stroke="#e85d65" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>' +
+      '<circle cx="53" cy="52" r="5" fill="#ffcb70"/><circle cx="73" cy="87" r="5" fill="#ffcb70"/><circle cx="98" cy="87" r="5" fill="#ffcb70"/>'),
+    Boat: svgArt("boat",
+      '<path d="M58 19v69M62 26 37 68h25Zm7 8v34h30Z" fill="url(#vocab-art-cream)" stroke="#b97a44" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M26 82h79l-12 22H42Z" fill="url(#vocab-art-red)" stroke="#b84a56" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M20 110c10-7 18 7 28 0s18 7 28 0 18 7 28 0 18 7 25 0" fill="none" stroke="#54aee0" stroke-width="7" stroke-linecap="round"/>'),
+    Train: svgArt("train",
+      '<path d="M30 20h67c10 0 16 7 16 17v49c0 17-12 28-29 28H43c-17 0-29-11-29-28V37c0-10 6-17 16-17Z" fill="url(#vocab-art-blue)" stroke="#356eae" stroke-width="4"/>' +
+      '<path d="M30 33h67v36H30Z" fill="#d9f7ff" stroke="#5796c8" stroke-width="3"/><path d="M63 34v34" stroke="#7ab3d1" stroke-width="3"/>' +
+      '<path d="M24 82h88" stroke="#f5cb68" stroke-width="7"/><circle cx="40" cy="105" r="9" fill="#38404e"/><circle cx="88" cy="105" r="9" fill="#38404e"/>' +
+      '<path d="M46 15h34" stroke="#cf7250" stroke-width="6" stroke-linecap="round"/>'),
+    Shirt: svgArt("shirt",
+      '<path d="m43 22 21 11 21-11 31 17-15 24-13-8v56H40V55l-13 8-15-24Z" fill="url(#vocab-art-blue)" stroke="#3c72b4" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="m43 22 21 11-13 22-16-18m50-15L64 33l13 22 16-18" fill="#d9f4ff" stroke="#4e83b5" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M64 34v75" stroke="#4d83b7" stroke-width="3"/><circle cx="69" cy="62" r="2.5" fill="#fff1be"/><circle cx="69" cy="77" r="2.5" fill="#fff1be"/><circle cx="69" cy="92" r="2.5" fill="#fff1be"/>'),
+    Hat: svgArt("hat",
+      '<ellipse cx="64" cy="91" rx="52" ry="16" fill="url(#vocab-art-blue)" stroke="#31669e" stroke-width="3"/>' +
+      '<path d="M34 82c2-28 12-48 30-48s28 20 30 48Z" fill="url(#vocab-art-main)" stroke="#aa7141" stroke-width="4"/>' +
+      '<path d="M34 76h60v14H34Z" fill="#df4e63"/><path d="M44 50c7-12 15-17 25-16" fill="none" stroke="#fff0c2" stroke-width="4" stroke-linecap="round"/>'),
+    Shoe: svgArt("shoe",
+      '<path d="M24 78c14-2 21-11 25-31l17 7c4 19 16 29 37 34 11 3 15 12 11 21H27c-11 0-15-8-12-18Z" fill="url(#vocab-art-blue)" stroke="#4268ac" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="M23 94h88c9 0 12 7 7 15H27c-10 0-13-8-4-15Z" fill="#fff9e9" stroke="#c7ad82" stroke-width="3"/>' +
+      '<path d="m52 60 20 8m-24 1 20 8m-23 0 19 8" stroke="#fff" stroke-width="4" stroke-linecap="round"/>' +
+      '<path d="M52 47c7 8 17 11 26 11" fill="none" stroke="#d9f4ff" stroke-width="4" stroke-linecap="round"/>'),
+    Sock: svgArt("sock",
+      '<path d="M45 18h40v47c0 10 9 17 21 20 15 4 14 25-3 28H39c-16 0-22-15-12-27l18-20Z" fill="url(#vocab-art-blue)" stroke="#4776bf" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="M45 18h40v16H45Z" fill="#f5cf69" stroke="#b8954d" stroke-width="3"/>' +
+      '<path d="M46 50h38m-38 12h31" stroke="#f3f5ff" stroke-width="7"/>' +
+      '<path d="M38 99c13 5 33 5 48 0" fill="none" stroke="#bad9ff" stroke-width="3" stroke-linecap="round"/>'),
+    Coat: svgArt("coat",
+      '<path d="m42 22 22 10 22-10 27 17-13 26-13-9v48H41V56l-13 9-13-26Z" fill="url(#vocab-art-main)" stroke="#a86443" stroke-width="4" stroke-linejoin="round"/>' +
+      '<path d="m42 22 22 10-12 24-17-19m51-15L64 32l12 24 17-19" fill="#fff2d7" stroke="#b87651" stroke-width="3" stroke-linejoin="round"/>' +
+      '<path d="M64 33v71" stroke="#b36f48" stroke-width="3"/><circle cx="70" cy="61" r="3" fill="#f9e6b7"/><circle cx="70" cy="78" r="3" fill="#f9e6b7"/><circle cx="70" cy="95" r="3" fill="#f9e6b7"/>' +
+      '<path d="M45 66h12v14H45m26-14h12v14H71" fill="none" stroke="#ce8b61" stroke-width="2"/>')
+  };
+
   var CARD_TINTS = ["#fdeccd", "#ffe4dc", "#ddf3e4", "#dceffd", "#eee4fb", "#fde4ec"];
 
   function artFor(word, categoryIcon) {
+    if (SVG_ART[word]) return SVG_ART[word];
     return WORD_ART[word] || categoryIcon || "✦";
   }
 
@@ -1815,6 +2556,20 @@ main {
         function (c) { return c !== cardEl; });
       var before = new Map(siblings.map(function (c) { return [c, c.getBoundingClientRect()]; }));
       cardEl.remove();
+      siblings.forEach(function (card, index) {
+        card.style.setProperty("--stack-index", index);
+        card.classList.toggle("is-stacked", index > 0);
+        if (index === 0) {
+          var nextCard = Store.card(card.dataset.id);
+          card.setAttribute("tabindex", "0");
+          card.setAttribute("role", "button");
+          card.setAttribute("aria-label", "Word card " + nextCard.word);
+          card.removeAttribute("aria-hidden");
+        } else {
+          card.setAttribute("tabindex", "-1");
+          card.setAttribute("aria-hidden", "true");
+        }
+      });
       if (REDUCED) return;
       requestAnimationFrame(function () {
         siblings.forEach(function (c) {
@@ -2013,6 +2768,7 @@ main {
       els.cardsLeft = $("#cards-left");
       els.timeValue = $("#time-value");
       els.scoreValue = $("#score-value");
+      els.progressFill = $("#progress-fill");
       els.errorsValue = $("#errors-value");
       els.statScore = $("#stat-score");
       els.statErrors = $("#stat-errors");
@@ -2052,14 +2808,10 @@ main {
         f.style.setProperty("--accent-line", cat.line || "rgba(245, 196, 81, 0.55)");
         f.innerHTML =
           '<div class="pile-slot">' +
-          '<div class="pile-base" aria-hidden="true"><span class="emblem">' + cat.icon + "</span></div>" +
+          '<div class="category-art" aria-hidden="true"><span class="category-emoji">' + cat.icon + "</span></div>" +
+          '<div class="category-title"><span>' + cat.name + '</span><span class="foundation-count" data-count>0/' + total + "</span></div>" +
           '<div class="pile-stack"></div>' +
           '<div class="pile-hint">Drop Here</div>' +
-          "</div>" +
-          '<div class="foundation-head">' +
-          '<span class="foundation-icon" aria-hidden="true">' + cat.icon + "</span>" +
-          '<span class="foundation-name">' + cat.name + "</span>" +
-          '<span class="foundation-count" data-count>0/' + total + "</span>" +
           "</div>";
         els.foundationsRow.appendChild(f);
       });
@@ -2069,14 +2821,22 @@ main {
       var iconById = {};
       state.categories.forEach(function (c) { iconById[c.id] = c.icon; });
       els.deckArea.innerHTML = "";
-      state.cards.filter(function (c) { return !c.sorted; }).forEach(function (card) {
+      var columns = [];
+      state.categories.forEach(function (category) {
+        var column = document.createElement("div");
+        column.className = "tableau-column";
+        els.deckArea.appendChild(column);
+        columns.push(column);
+      });
+      state.cards.filter(function (c) { return !c.sorted; }).forEach(function (card, index) {
+        var column = columns[index % columns.length];
+        var stackIndex = column.children.length;
         var el = document.createElement("div");
         el.className = "word-card";
+        if (stackIndex > 0) el.classList.add("is-stacked");
         el.dataset.id = card.id;
-        el.setAttribute("tabindex", "0");
-        el.setAttribute("role", "button");
-        el.setAttribute("aria-label", "Word card " + card.word);
-        el.style.setProperty("--rot", (card.rotation * 0.35).toFixed(2) + "deg");
+        el.dataset.category = card.categoryId;
+        el.style.setProperty("--stack-index", stackIndex);
         el.style.setProperty("--tint", tintFor(card.word));
         var len = card.word.length;
         el.dataset.len = len > 13 ? "xl" : len > 10 ? "l" : len > 7 ? "m" : "s";
@@ -2085,7 +2845,15 @@ main {
           artFor(card.word, iconById[card.categoryId]) +
           '</span></div>' +
           '<div class="card-word">' + card.word + "</div>";
-        els.deckArea.appendChild(el);
+        if (stackIndex === 0) {
+          el.setAttribute("tabindex", "0");
+          el.setAttribute("role", "button");
+          el.setAttribute("aria-label", "Word card " + card.word);
+        } else {
+          el.setAttribute("tabindex", "-1");
+          el.setAttribute("aria-hidden", "true");
+        }
+        column.appendChild(el);
       });
     }
 
@@ -2105,11 +2873,13 @@ main {
 
     function updateStats(state) {
       els.scoreValue.textContent = state.score + " / " + state.cards.length;
+      els.progressFill.style.width =
+        (state.score / state.cards.length * 100) + "%";
       els.errorsValue.textContent = String(state.errors);
     }
 
     function updateCardsLeft() {
-      els.cardsLeft.textContent = Store.unsortedCount() + " Left";
+      if (els.cardsLeft) els.cardsLeft.textContent = Store.unsortedCount() + " Left";
     }
 
     function setTimer(seconds) { els.timeValue.textContent = formatTime(seconds); }
@@ -2123,7 +2893,7 @@ main {
     function pad2(n) { return (n < 10 ? "0" : "") + n; }
 
     function updateLevelBadge(state, unlocked) {
-      els.levelValue.textContent = pad2(state.level);
+      els.levelValue.textContent = String(state.level);
       els.levelBadge.title = "Level " + state.level + " of " + TOTAL_LEVELS + " — " + state.tier + " vocabulary";
       els.btnPrevLevel.disabled = state.level <= 1;
       els.btnNextLevel.disabled = state.level >= unlocked;
