@@ -521,14 +521,15 @@ main {
   box-shadow: 0 2px 6px rgba(10, 26, 48, 0.45);
 }
 
-.pile-stack { position: absolute; inset: 0; }
+.pile-stack {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
 
 .pile-hint {
-  position: absolute;
-  left: 50%;
-  top: 76%;
-  transform: translate(-50%, -50%);
-  z-index: 1;
+  position: static;
   padding: 4px 11px;
   border-radius: var(--r-pill);
   background: rgba(6, 24, 14, 0.78);
@@ -543,15 +544,15 @@ main {
 
 /* sorted cards rest here as small face-up playing cards, fanned upward */
 .pile-chip {
-  position: absolute;
-  left: 50%;
-  bottom: 10px;
-  transform: translateX(-50%) translateY(calc(var(--i) * -15px)) rotate(var(--rot, 0deg));
-  z-index: var(--z, 1);
-  width: calc(100% - 14px);
+  position: static;
+  width: 100%;
+  min-height: 36px;
+  margin: 0;
+  transform: none;
+  z-index: auto;
   display: flex;
   align-items: center;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 5px;
   padding: 5px 7px;
   border-radius: 8px;
@@ -562,13 +563,13 @@ main {
   font-family: var(--font-cards);
   font-size: 0.8rem;
   font-weight: 800;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
 }
 
 .pile-chip .chip-art { flex: none; font-size: 0.85rem; line-height: 1; }
-.pile-chip .chip-word { overflow: hidden; text-overflow: ellipsis; }
+.pile-chip .chip-word { min-width: 0; overflow-wrap: anywhere; }
 
 .foundation.drop-hover .pile-slot {
   transform: translateY(-3px) scale(1.03);
@@ -940,13 +941,12 @@ main {
   80%  { transform: translateX(2px); }
 }
 
-@keyframes pop-in {
-  0%   { transform: translateX(-50%) translateY(calc(var(--i) * -15px)) rotate(var(--rot, 0deg)) scale(0.4); opacity: 0; }
-  60%  { transform: translateX(-50%) translateY(calc(var(--i) * -15px)) rotate(var(--rot, 0deg)) scale(1.12); opacity: 1; }
-  100% { transform: translateX(-50%) translateY(calc(var(--i) * -15px)) rotate(var(--rot, 0deg)) scale(1); }
+@keyframes pile-chip-enter {
+  from { opacity: 0; }
+  to   { opacity: 1; }
 }
 
-.pile-chip.pop-in { animation: pop-in 420ms var(--ease-spring) both; }
+.pile-chip.pop-in { animation: pile-chip-enter 240ms var(--ease-out) both; }
 
 @keyframes stat-pop {
   0%   { transform: scale(1); }
@@ -1024,7 +1024,7 @@ main {
   .foundation-name { font-size: 0.76rem; }
   .foundation-count { font-size: 0.7rem; padding: 1px 7px; }
   .pile-slot { width: min(100%, 140px); }
-  .pile-chip { font-size: 0.72rem; gap: 4px; padding: 4px 6px; bottom: 8px; }
+  .pile-chip { font-size: 0.72rem; gap: 4px; padding: 4px 6px; }
   .pile-chip .chip-art { font-size: 0.78rem; }
 
   .divider-title { font-size: 0.92rem; }
@@ -1055,7 +1055,6 @@ main {
 @media (max-height: 520px) and (orientation: landscape) {
   .topbar { padding: 6px 12px; }
   .pile-slot { aspect-ratio: 1 / 0.95; }
-  .pile-chip { bottom: 6px; transform: translateX(-50%) translateY(calc(var(--i) * -12px)) rotate(var(--rot, 0deg)); }
   .pile-hint { font-size: 0.58rem; padding: 3px 8px; }
   .section-label { margin-bottom: 6px; }
   .deck-divider { margin: 12px 0 8px; }
@@ -1337,13 +1336,10 @@ main { width: min(100%, 1120px); padding: 18px 24px 30px; }
   background: transparent;
 }
 
-.foundation-head { display: none; }
-.pile-stack { inset: auto 6px 47px; height: 28px; z-index: 3; }
+.foundation-head { display: flex; }
 .pile-chip {
-  bottom: 0;
   padding: 3px 6px;
   font-size: .64rem;
-  transform: translateX(-50%) translateY(calc(var(--i) * -7px)) rotate(var(--rot, 0deg));
 }
 .pile-hint {
   top: auto;
@@ -1508,7 +1504,6 @@ main { width: min(100%, 1120px); padding: 18px 24px 30px; }
   .category-emoji { font-size: clamp(46px, 13vw, 70px); }
   .category-title { bottom: 6px; font-size: clamp(.72rem, 3.7vw, 1rem); }
   .category-title [data-count] { font-size: .85em; }
-  .pile-stack { bottom: 38px; height: 24px; }
   .pile-chip { padding: 2px 5px; font-size: .56rem; }
   .deck-area { grid-template-columns: repeat(2, minmax(0, 1fr)); --card-w: 136px; --card-step: 38px; min-height: 0; }
   .tableau-column { height: calc(156px + 4 * var(--card-step)); }
@@ -1670,6 +1665,164 @@ main {
   .deck-area {
     --card-w: clamp(100px, 36vw, 160px);
   }
+}
+
+/* Category cards keep their header visible while collected words flow below. */
+.foundations-row {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: clamp(14px, 2.2vw, 26px);
+  width: min(100%, 1120px);
+  align-items: start;
+}
+
+.foundation {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  gap: 12px;
+  min-width: 0;
+  min-height: 220px;
+  padding: 16px;
+  border: 1px solid #cdb98d;
+  border-radius: 16px;
+  background: linear-gradient(180deg, #fffaf0, #f1e3cc);
+  box-shadow:
+    0 3px 7px rgba(0, 0, 0, 0.27),
+    0 8px 14px rgba(0, 0, 0, 0.16),
+    inset 0 0 0 3px rgba(255, 255, 255, 0.45);
+}
+
+.foundation-head {
+  display: flex;
+  flex: none;
+  align-items: center;
+  gap: 9px;
+  width: 100%;
+  min-height: 48px;
+  padding: 8px 10px;
+  border: 1px solid var(--accent-line, rgba(94, 70, 28, 0.2));
+  border-radius: 9px;
+  background: var(--accent-soft, rgba(245, 196, 81, 0.16));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.foundation-icon {
+  color: var(--ink);
+  font-size: 1.15rem;
+}
+
+.foundation-name {
+  color: var(--ink);
+  font-family: var(--font-cards);
+  font-weight: 800;
+  font-size: 1rem;
+}
+
+.foundation-count {
+  font-size: 0.82rem;
+  padding: 3px 9px;
+}
+
+.foundation-name {
+  flex: 1;
+  white-space: normal;
+  overflow: visible;
+  text-overflow: clip;
+  overflow-wrap: anywhere;
+}
+
+.pile-stack {
+  position: static;
+  display: flex;
+  flex: none;
+  flex-direction: column;
+  gap: 8px;
+  inset: auto;
+  width: 100%;
+  height: auto;
+  z-index: auto;
+}
+
+.pile-chip {
+  position: static;
+  width: 100%;
+  min-height: 42px;
+  margin: 0;
+  transform: none;
+  z-index: auto;
+  justify-content: flex-start;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+}
+
+.pile-chip .chip-word {
+  min-width: 0;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+.pile-hint {
+  position: static;
+  align-self: stretch;
+  margin-top: auto;
+  transform: none;
+}
+
+@media (max-width: 900px) {
+  .foundations-row {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px;
+    width: min(100%, 700px);
+  }
+
+  .foundation {
+    min-height: 200px;
+  }
+}
+
+@media (max-width: 600px) {
+  .foundations-row {
+    gap: 12px;
+    width: min(100%, 460px);
+  }
+
+  .foundation {
+    min-height: 174px;
+    gap: 9px;
+    padding: 10px;
+  }
+
+  .foundation-head {
+    gap: 6px;
+    min-height: 40px;
+    padding: 6px;
+  }
+
+  .foundation-name {
+    font-size: 0.84rem;
+  }
+
+  .foundation-count {
+    font-size: 0.72rem;
+    padding: 2px 6px;
+  }
+
+  .pile-chip {
+    min-height: 36px;
+  }
+}
+
+.foundation.drop-hover {
+  border-color: var(--accent, var(--gold));
+  box-shadow: 0 0 0 3px var(--accent-soft, rgba(255, 217, 104, 0.3)), 0 8px 14px rgba(0, 0, 0, 0.16);
+}
+
+.foundation.is-complete {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), 0 8px 16px rgba(0, 0, 0, 0.18);
 }
 </style>
 </head>
@@ -2807,12 +2960,13 @@ main {
         f.style.setProperty("--accent-soft", cat.soft || "rgba(245, 196, 81, 0.2)");
         f.style.setProperty("--accent-line", cat.line || "rgba(245, 196, 81, 0.55)");
         f.innerHTML =
-          '<div class="pile-slot">' +
-          '<div class="category-art" aria-hidden="true"><span class="category-emoji">' + cat.icon + "</span></div>" +
-          '<div class="category-title"><span>' + cat.name + '</span><span class="foundation-count" data-count>0/' + total + "</span></div>" +
+          '<div class="foundation-head">' +
+          '<span class="foundation-icon" aria-hidden="true">' + cat.icon + "</span>" +
+          '<span class="foundation-name">' + cat.name + "</span>" +
+          '<span class="foundation-count" data-count>0/' + total + "</span>" +
+          "</div>" +
           '<div class="pile-stack"></div>' +
-          '<div class="pile-hint">Drop Here</div>' +
-          "</div>";
+          '<div class="pile-hint">Drop Here</div>';
         els.foundationsRow.appendChild(f);
       });
     }
@@ -3090,7 +3244,6 @@ main {
     function commitSort(card, foundationEl, ghost) {
       var stack = foundationEl.querySelector(".pile-stack");
       var hint = foundationEl.querySelector(".pile-hint");
-      var index = Store.sortedIn(card.categoryId) - 1;
 
       /* resting mini-card, hidden first so its final box can be measured */
       var chip = document.createElement("div");
@@ -3103,9 +3256,6 @@ main {
       chip.innerHTML =
         '<span class="chip-art" aria-hidden="true">' + artFor(card.word, catIcon) + "</span>" +
         '<span class="chip-word">' + card.word + "</span>";
-      chip.style.setProperty("--i", index);
-      chip.style.setProperty("--rot", card.rotation + "deg");
-      chip.style.setProperty("--z", index + 1);
       chip.style.visibility = "hidden";
       stack.appendChild(chip);
       if (hint) hint.style.display = "none";
