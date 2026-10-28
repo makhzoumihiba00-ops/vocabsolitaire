@@ -1363,7 +1363,6 @@ main { width: min(100%, 1120px); padding: 18px 24px 30px; }
   align-items: start;
   gap: 0 clamp(12px, 4vw, 56px);
   width: min(100%, 850px);
-  min-height: 390px;
   margin: 0 auto;
   padding: 0;
 }
@@ -1371,7 +1370,6 @@ main { width: min(100%, 1120px); padding: 18px 24px 30px; }
 .tableau-column {
   position: relative;
   width: min(100%, var(--card-w));
-  height: calc(190px + 4 * var(--card-step));
 }
 
 .word-card {
@@ -1477,8 +1475,7 @@ main { width: min(100%, 1120px); padding: 18px 24px 30px; }
   main { width: min(100%, 760px); }
   .foundations-row, .deck-area { width: min(100%, 640px); gap: 14px; }
   .pile-slot { max-width: 150px; }
-  .deck-area { --card-w: 150px; --card-step: 44px; min-height: 360px; }
-  .tableau-column { height: calc(176px + 4 * var(--card-step)); }
+  .deck-area { --card-w: 150px; --card-step: 44px; }
   .word-card { height: 176px; }
 }
 
@@ -1505,8 +1502,7 @@ main { width: min(100%, 1120px); padding: 18px 24px 30px; }
   .category-title { bottom: 6px; font-size: clamp(.72rem, 3.7vw, 1rem); }
   .category-title [data-count] { font-size: .85em; }
   .pile-chip { padding: 2px 5px; font-size: .56rem; }
-  .deck-area { grid-template-columns: repeat(2, minmax(0, 1fr)); --card-w: 136px; --card-step: 38px; min-height: 0; }
-  .tableau-column { height: calc(156px + 4 * var(--card-step)); }
+  .deck-area { grid-template-columns: repeat(2, minmax(0, 1fr)); --card-w: 136px; --card-step: 38px; }
   .word-card { height: 156px; }
   .card-art { margin: 6px 6px 0; }
   .card-emoji { font-size: clamp(44px, 12vw, 62px); }
@@ -1574,8 +1570,18 @@ main {
   min-height: 0;
 }
 
+/* column height follows its live card count so grid rows only ever take
+   the space their stacks still need; a spent stack collapses to zero */
 .tableau-column {
-  height: calc(var(--card-h) + 4 * var(--card-step));
+  height: calc(var(--card-h) + (var(--stack-count, 5) - 1) * var(--card-step));
+  min-height: 0;
+  transition: height 0.4s var(--ease-out);
+}
+
+.tableau-column.is-empty {
+  height: 0;
+  overflow: hidden;
+  pointer-events: none;
 }
 
 .word-card { height: var(--card-h); }
@@ -2704,8 +2710,9 @@ main {
 
     /* remove a card and FLIP its siblings into the gap */
     function flipRemove(cardEl) {
+      var column = cardEl.parentElement;
       var siblings = Array.prototype.filter.call(
-        cardEl.parentElement.querySelectorAll(".word-card"),
+        column.querySelectorAll(".word-card"),
         function (c) { return c !== cardEl; });
       var before = new Map(siblings.map(function (c) { return [c, c.getBoundingClientRect()]; }));
       cardEl.remove();
@@ -2723,6 +2730,8 @@ main {
           card.setAttribute("aria-hidden", "true");
         }
       });
+      column.style.setProperty("--stack-count", String(siblings.length));
+      column.classList.toggle("is-empty", siblings.length === 0);
       if (REDUCED) return;
       requestAnimationFrame(function () {
         siblings.forEach(function (c) {
@@ -2735,6 +2744,29 @@ main {
           } else {
             c.animate([{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }],
               { duration: 340, easing: "cubic-bezier(0.22,0.61,0.36,1)" });
+          }
+        });
+      });
+    }
+
+    /* grid reflow FLIP: run a layout change (e.g. dropping empty rows),
+       then glide the surviving columns from their old spot to the new one */
+    function reflowFlip(items, mutate) {
+      var live = items.filter(function (c) { return document.contains(c); });
+      var before = live.map(function (c) { return c.getBoundingClientRect(); });
+      mutate();
+      if (REDUCED) return;
+      requestAnimationFrame(function () {
+        live.forEach(function (c, i) {
+          var prev = before[i];
+          var now = c.getBoundingClientRect();
+          var dx = prev.left - now.left, dy = prev.top - now.top;
+          if (!dx && !dy) return;
+          if (hasGsap()) {
+            window.gsap.fromTo(c, { x: dx, y: dy }, { x: 0, y: 0, duration: 0.42, ease: "power3.out", clearProps: "transform" });
+          } else {
+            c.animate([{ transform: "translate(" + dx + "px," + dy + "px)" }, { transform: "none" }],
+              { duration: 420, easing: "cubic-bezier(0.22,0.61,0.36,1)" });
           }
         });
       });
@@ -2773,7 +2805,7 @@ main {
       }
     }
 
-    return { deal: deal, fly: fly, deny: deny, springBack: springBack, glow: glow, pop: pop, flipRemove: flipRemove, confetti: confetti };
+    return { deal: deal, fly: fly, deny: deny, springBack: springBack, glow: glow, pop: pop, flipRemove: flipRemove, reflowFlip: reflowFlip, confetti: confetti };
   })();
 
   /* ==================================================================
@@ -3009,10 +3041,39 @@ main {
         }
         column.appendChild(el);
       });
+      columns.forEach(function (column) {
+        column.style.setProperty("--stack-count", String(column.children.length));
+        column.classList.toggle("is-empty", column.children.length === 0);
+      });
     }
 
     function renderDeckEmpty() {
       els.deckArea.innerHTML = '<div class="deck-empty">🎉 All cards sorted — beautifully done!</div>';
+    }
+
+    /* when every stack of a grid row is spent, drop that row entirely so
+       the rows below reflow up into its place (order preserved by the grid) */
+    function collapseEmptyRows() {
+      var columns = Array.prototype.filter.call(
+        els.deckArea.children,
+        function (c) {
+          return c.classList && c.classList.contains("tableau-column") && c.style.display !== "none";
+        });
+      if (columns.length < 2) return;
+      var tracks = getComputedStyle(els.deckArea).gridTemplateColumns.match(/\S+/g);
+      var perRow = tracks ? tracks.length : 1;
+      if (perRow < 2) return;
+      var hide = [];
+      for (var start = 0; start + perRow <= columns.length; start += perRow) {
+        var row = columns.slice(start, start + perRow);
+        var spent = row.every(function (c) { return c.classList.contains("is-empty"); });
+        if (spent) hide = hide.concat(row);
+      }
+      if (!hide.length) return;
+      var rest = columns.filter(function (c) { return hide.indexOf(c) === -1; });
+      Anim.reflowFlip(rest, function () {
+        hide.forEach(function (c) { c.style.display = "none"; });
+      });
     }
 
     function updateFoundation(categoryId) {
@@ -3138,6 +3199,7 @@ main {
       renderFoundations: renderFoundations,
       renderDeck: renderDeck,
       renderDeckEmpty: renderDeckEmpty,
+      collapseEmptyRows: collapseEmptyRows,
       updateFoundation: updateFoundation,
       updateStats: updateStats,
       updateCardsLeft: updateCardsLeft,
@@ -3267,6 +3329,7 @@ main {
 
         var cardEl = cardElById(card.id);
         if (cardEl) Anim.flipRemove(cardEl);
+        Ui.collapseEmptyRows();
 
         Ui.updateFoundation(card.categoryId);
         Ui.updateCardsLeft();
