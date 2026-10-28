@@ -3051,28 +3051,20 @@ main {
       els.deckArea.innerHTML = '<div class="deck-empty">🎉 All cards sorted — beautifully done!</div>';
     }
 
-    /* when every stack of a grid row is spent, drop that row entirely so
-       the rows below reflow up into its place (order preserved by the grid) */
-    function collapseEmptyRows() {
+    /* a spent stack leaves the grid immediately so the remaining stacks
+       reflow into its cell — grid auto-packing keeps them compact, gap-free
+       and in the original order */
+    function compactEmptyStacks() {
       var columns = Array.prototype.filter.call(
         els.deckArea.children,
         function (c) {
           return c.classList && c.classList.contains("tableau-column") && c.style.display !== "none";
         });
-      if (columns.length < 2) return;
-      var tracks = getComputedStyle(els.deckArea).gridTemplateColumns.match(/\S+/g);
-      var perRow = tracks ? tracks.length : 1;
-      if (perRow < 2) return;
-      var hide = [];
-      for (var start = 0; start + perRow <= columns.length; start += perRow) {
-        var row = columns.slice(start, start + perRow);
-        var spent = row.every(function (c) { return c.classList.contains("is-empty"); });
-        if (spent) hide = hide.concat(row);
-      }
-      if (!hide.length) return;
-      var rest = columns.filter(function (c) { return hide.indexOf(c) === -1; });
+      var spent = columns.filter(function (c) { return c.classList.contains("is-empty"); });
+      if (!spent.length) return;
+      var rest = columns.filter(function (c) { return !c.classList.contains("is-empty"); });
       Anim.reflowFlip(rest, function () {
-        hide.forEach(function (c) { c.style.display = "none"; });
+        spent.forEach(function (c) { c.style.display = "none"; });
       });
     }
 
@@ -3199,7 +3191,7 @@ main {
       renderFoundations: renderFoundations,
       renderDeck: renderDeck,
       renderDeckEmpty: renderDeckEmpty,
-      collapseEmptyRows: collapseEmptyRows,
+      compactEmptyStacks: compactEmptyStacks,
       updateFoundation: updateFoundation,
       updateStats: updateStats,
       updateCardsLeft: updateCardsLeft,
@@ -3329,7 +3321,7 @@ main {
 
         var cardEl = cardElById(card.id);
         if (cardEl) Anim.flipRemove(cardEl);
-        Ui.collapseEmptyRows();
+        Ui.compactEmptyStacks();
 
         Ui.updateFoundation(card.categoryId);
         Ui.updateCardsLeft();
