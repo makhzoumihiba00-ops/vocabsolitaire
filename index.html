@@ -8,7 +8,7 @@
 <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect x='4' y='2' width='16' height='20' rx='3' fill='%23fcfdf9' stroke='%2334d399' stroke-width='1.6'/%3E%3Ctext x='12' y='16' font-size='10' text-anchor='middle' fill='%2310b981' font-family='sans-serif' font-weight='bold'%3EA%3C/text%3E%3C/svg%3E" />
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Nunito:wght@700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;500;600;700&family=Inter:wght@400;600;700;800&family=Nunito:wght@700;800;900&family=Playfair+Display:wght@600;700;800&display=swap" rel="stylesheet" />
 
 <style>
 /* ======================================================================
@@ -1830,6 +1830,311 @@ main {
   border-color: var(--gold);
   box-shadow: 0 0 0 2px var(--gold), 0 8px 16px rgba(0, 0, 0, 0.18);
 }
+
+/* ======================================================================
+   6. PREMIUM REDESIGN — atmospheric navy table, glass HUD, ivory
+      collectible cards, sapphire diamond backs, pastel category glows
+   ====================================================================== */
+
+/* --- atmosphere: library scene at full brightness, no veil --- */
+html {
+  background: #241a10;
+}
+
+body {
+  background: url("assets/bg-custom.png") center / cover no-repeat fixed;
+}
+
+/* photo background replaces the painted star field */
+body::before { display: none; }
+
+/* no screen-wide vignette; separation lives on the elements themselves */
+body::after { display: none; }
+
+/* star field + sparkles, painted once and fixed behind everything */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='880' height='560'%3E%3Cg fill='%23cfe0ff'%3E%3Ccircle cx='63' cy='87' r='1.5' opacity='.32'/%3E%3Ccircle cx='171' cy='43' r='1.1' opacity='.22'/%3E%3Ccircle cx='286' cy='94' r='1.2' opacity='.28'/%3E%3Ccircle cx='418' cy='66' r='1.6' opacity='.36'/%3E%3Ccircle cx='539' cy='35' r='1' opacity='.2'/%3E%3Ccircle cx='651' cy='78' r='1.3' opacity='.26'/%3E%3Ccircle cx='764' cy='48' r='1.1' opacity='.2'/%3E%3Ccircle cx='833' cy='106' r='1.4' opacity='.3'/%3E%3Ccircle cx='44' cy='243' r='1.1' opacity='.2'/%3E%3Ccircle cx='856' cy='228' r='1.2' opacity='.22'/%3E%3Ccircle cx='110' cy='379' r='1' opacity='.16'/%3E%3Ccircle cx='812' cy='352' r='1.1' opacity='.18'/%3E%3Ccircle cx='33' cy='494' r='1.2' opacity='.18'/%3E%3Ccircle cx='847' cy='481' r='1' opacity='.16'/%3E%3Ccircle cx='231' cy='148' r='1' opacity='.18'/%3E%3Ccircle cx='687' cy='151' r='1' opacity='.2'/%3E%3C/g%3E%3Cg fill='%23ffe3a3'%3E%3Ccircle cx='352' cy='62' r='1.3' opacity='.38'/%3E%3Ccircle cx='121' cy='163' r='1.1' opacity='.32'/%3E%3Ccircle cx='729' cy='72' r='1.3' opacity='.36'/%3E%3Ccircle cx='50' cy='331' r='1' opacity='.26'/%3E%3Ccircle cx='858' cy='301' r='1.1' opacity='.28'/%3E%3C/g%3E%3Cg fill='none' stroke='%23ffffff' stroke-linecap='round'%3E%3Cpath d='M484 128 q2.2 5.6 8 8 q-5.8 2.4 -8 8 q-2.2 -5.6 -8 -8 q5.8 -2.4 8 -8 z' stroke-width='1.8' opacity='.3'/%3E%3Cpath d='M94 288 q1.8 4.4 6.2 6.2 q-4.4 1.8 -6.2 6.2 q-1.8 -4.4 -6.2 -6.2 q4.4 -1.8 6.2 -6.2 z' stroke-width='1.5' opacity='.24'/%3E%3Cpath d='M789 216 q1.9 4.6 6.5 6.5 q-4.6 1.9 -6.5 6.5 q-1.9 -4.6 -6.5 -6.5 q4.6 -1.9 6.5 -6.5 z' stroke-width='1.5' opacity='.26'/%3E%3C/g%3E%3C/svg%3E");
+}
+
+/* soft shadow behind each card so it separates from the bright scene */
+.card-word {
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.6);
+}
+
+/* --- floating glass HUD --- */
+.topbar {
+  margin: 10px 12px 0;
+  padding: 8px 14px;
+  border: 1px solid rgba(146, 178, 255, 0.17);
+  border-radius: 16px;
+  background: linear-gradient(180deg, rgba(24, 38, 76, 0.78), rgba(13, 22, 48, 0.72));
+  box-shadow: 0 14px 34px -12px rgba(2, 8, 24, 0.7), inset 0 1px 0 rgba(255, 255, 255, 0.07);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.brand {
+  border-color: rgba(146, 178, 255, 0.16);
+  background: rgba(146, 178, 255, 0.06);
+}
+
+.brand-text h1 {
+  font-family: "Fredoka", var(--font-serif);
+  color: #f4f7ff;
+}
+
+.brand-text h1 span {
+  background: linear-gradient(180deg, #ffe8b2, #e9b954);
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+}
+
+.level-badge {
+  color: #ffd98a;
+  background: rgba(146, 178, 255, 0.07);
+  border: 1px solid rgba(201, 180, 135, 0.5);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+  font-family: "Fredoka", var(--font-serif);
+}
+
+.lvl-btn {
+  border-color: rgba(146, 178, 255, 0.28);
+  background: rgba(146, 178, 255, 0.08);
+}
+
+.stat-time,
+.stat-errors,
+.progress-stat {
+  color: #dbe6ff;
+  background: rgba(146, 178, 255, 0.07);
+  border: 1px solid rgba(146, 178, 255, 0.16);
+}
+
+.progress-track {
+  border-color: rgba(146, 178, 255, 0.22);
+  background: rgba(5, 14, 34, 0.85);
+}
+
+.progress-track > span {
+  background: linear-gradient(90deg, #e9b954, #ffd98a);
+  box-shadow: 0 0 10px rgba(255, 209, 125, 0.5);
+}
+
+.topbar-actions .btn {
+  color: #d5e2fb;
+  border: 1px solid rgba(146, 178, 255, 0.2);
+  background: linear-gradient(180deg, rgba(146, 178, 255, 0.12), rgba(146, 178, 255, 0.05));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.09);
+}
+
+.topbar-actions .btn:hover {
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.12), 0 0 16px rgba(120, 160, 250, 0.28);
+}
+
+.topbar-actions #btn-decks {
+  color: #eaf2ff;
+  border-color: rgba(146, 178, 255, 0.4);
+  background: linear-gradient(180deg, #3989d2, #2468a8);
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.22), 0 3px 10px rgba(2, 18, 39, 0.32);
+}
+
+/* --- foundations: dark pedestals with pastel category glow --- */
+.foundation {
+  border: 1px solid var(--accent-line);
+  border-radius: 16px;
+  background:
+    radial-gradient(80% 60% at 50% 0%, var(--accent-soft), transparent 70%),
+    linear-gradient(180deg, rgba(24, 38, 76, 0.82), rgba(10, 18, 42, 0.86));
+  box-shadow:
+    0 0 30px -4px var(--accent-soft),
+    0 10px 22px -8px rgba(2, 8, 24, 0.6),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
+}
+
+.foundation-head {
+  border: 1px solid var(--accent-line);
+  background: linear-gradient(180deg, var(--accent-soft), rgba(8, 16, 38, 0.7));
+  box-shadow: inset 0 1px rgba(255, 255, 255, 0.08);
+}
+
+.foundation-name {
+  color: #f0f4ff;
+  font-family: "Fredoka", var(--font-cards);
+  letter-spacing: 0.02em;
+}
+
+.foundation-count {
+  color: var(--accent);
+  background: rgba(3, 10, 26, 0.55);
+  border: 1px solid var(--accent-line);
+}
+
+.foundation.drop-hover {
+  border-color: var(--accent);
+  box-shadow:
+    0 0 0 3px var(--accent-soft),
+    0 0 44px -2px var(--accent-soft),
+    0 10px 22px -8px rgba(2, 8, 24, 0.6);
+}
+
+.foundation.is-complete {
+  border-color: var(--gold);
+  box-shadow: 0 0 0 2px var(--gold), 0 0 34px rgba(245, 196, 81, 0.3);
+}
+
+.foundation.is-complete .foundation-count {
+  color: #3a2b05;
+  background: var(--gold);
+  border-color: transparent;
+}
+
+/* collected chips keep their ivory look and glow softly on the pedestal */
+.pile-chip {
+  border: 1px solid rgba(196, 168, 110, 0.42);
+  background: linear-gradient(180deg, #fffdf6, #f6ecd7);
+  box-shadow: 0 2px 6px rgba(2, 8, 24, 0.42), inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.pile-hint {
+  background: rgba(8, 16, 38, 0.8);
+  border: 1px dashed var(--accent-line);
+  color: #ffe9ad;
+}
+
+/* --- face-up word cards: premium ivory collectibles --- */
+.word-card {
+  border: 1px solid #e0cfa6;
+  background: linear-gradient(175deg, #fffdf5 0%, #fbf4e2 60%, #f3e8cf 100%);
+  box-shadow:
+    0 3px 8px rgba(20, 12, 4, 0.35),
+    0 14px 28px -8px rgba(20, 12, 4, 0.45),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.6);
+}
+
+.word-card::after {
+  border: 1px solid rgba(196, 168, 110, 0.42);
+}
+
+.word-card:hover,
+.word-card.is-selected {
+  box-shadow:
+    0 4px 10px rgba(20, 12, 4, 0.38),
+    0 22px 40px -8px rgba(20, 12, 4, 0.5),
+    inset 0 0 0 1px rgba(255, 255, 255, 0.7);
+}
+
+/* accent underline beneath the word, tinted by the card's category */
+.card-word {
+  font-family: "Fredoka", var(--font-cards);
+  font-weight: 600;
+  color: #2c3a60;
+}
+
+.card-word::after {
+  content: "";
+  display: block;
+  width: 26px;
+  height: 3px;
+  margin: 3px auto 0;
+  border-radius: 99px;
+  background: linear-gradient(90deg, var(--accent, #ef9a3c), rgba(146, 178, 255, 0.35));
+  box-shadow: 0 0 8px var(--accent-soft, rgba(255, 175, 84, 0.4));
+}
+
+/* --- stacked cards: sapphire diamond-lattice card backs --- */
+.word-card.is-stacked {
+  border: 1px solid rgba(150, 180, 255, 0.32);
+  background:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Cdefs%3E%3ClinearGradient id='g' x1='0' y1='0' x2='0' y2='1'%3E%3Cstop offset='0' stop-color='%23ffe9ae'/%3E%3Cstop offset='1' stop-color='%23e8b23e'/%3E%3C/linearGradient%3E%3C/defs%3E%3Cpath d='M50 8 88 50 50 92 12 50Z' fill='url(%23g)'/%3E%3Cpath d='M50 26 71 50 50 74 29 50Z' fill='none' stroke='%23fff' stroke-opacity='.45' stroke-width='4'/%3E%3C/svg%3E") center 38% / 34% auto no-repeat,
+    repeating-linear-gradient(45deg, rgba(168, 196, 255, 0.08) 0 2px, transparent 2px 11px),
+    repeating-linear-gradient(-45deg, rgba(168, 196, 255, 0.08) 0 2px, transparent 2px 11px),
+    linear-gradient(160deg, #34528f 0%, #1e3567 55%, #16294f 100%);
+  box-shadow:
+    0 2px 6px rgba(2, 8, 24, 0.46),
+    inset 0 0 0 3px rgba(255, 226, 160, 0.12);
+}
+
+.word-card.is-stacked::after {
+  border: 1px solid rgba(255, 226, 160, 0.26);
+}
+
+.word-card.is-stacked .card-art,
+.word-card.is-stacked .card-word {
+  display: none;
+}
+
+/* --- deck area empty state --- */
+.deck-empty {
+  border: 1px solid rgba(146, 178, 255, 0.22);
+  background: rgba(10, 20, 46, 0.6);
+  color: #c9d8f7;
+}
+
+/* --- modals & toast: navy glass for coherence --- */
+.modal-card {
+  background: linear-gradient(170deg, #1a2c5c, #0d1734 70%, #0a122b);
+  border: 1px solid rgba(146, 178, 255, 0.24);
+  box-shadow: var(--shadow-panel), 0 0 70px rgba(60, 100, 210, 0.18);
+}
+
+#modal-decks .modal-card {
+  background: linear-gradient(170deg, #1a2c5c, #0d1734 70%, #0a122b);
+  border-color: rgba(219, 190, 119, 0.5);
+}
+
+.deck-option {
+  background: rgba(16, 30, 64, 0.72);
+  border-color: rgba(168, 204, 238, 0.28);
+}
+
+.deck-option:hover {
+  background: rgba(41, 76, 148, 0.62);
+  border-color: rgba(219, 190, 119, 0.6);
+}
+
+.deck-option.is-current {
+  background: rgba(49, 96, 178, 0.5);
+  border-color: var(--gold);
+}
+
+.win-stat {
+  background: rgba(10, 20, 46, 0.72);
+  border-color: rgba(146, 178, 255, 0.18);
+}
+
+.toast {
+  background: rgba(13, 23, 50, 0.95);
+  border-color: rgba(219, 190, 119, 0.45);
+}
+
+/* --- bigger card art: illustrations/emoji fill the art panel --- */
+.card-art {
+  margin: 6px 6px 0;
+  container-type: size;
+}
+
+.word-card .card-illustration {
+  width: 100%;
+  height: 100%;
+  max-width: none;
+}
+
+/* cqw/cqh resolve against .card-art, so the glyph always fits the panel */
+.card-emoji {
+  font-size: min(86cqw, 86cqh);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body::before, body::after { display: none; }
+}
+
 </style>
 </head>
 <body>
@@ -3005,7 +3310,8 @@ main {
 
     function renderDeck(state) {
       var iconById = {};
-      state.categories.forEach(function (c) { iconById[c.id] = c.icon; });
+      var colorById = {};
+      state.categories.forEach(function (c) { iconById[c.id] = c.icon; colorById[c.id] = c.color; });
       els.deckArea.innerHTML = "";
       var columns = [];
       state.categories.forEach(function (category) {
@@ -3024,6 +3330,7 @@ main {
         el.dataset.category = card.categoryId;
         el.style.setProperty("--stack-index", stackIndex);
         el.style.setProperty("--tint", tintFor(card.word));
+        el.style.setProperty("--accent", colorById[card.categoryId] || "#ef9a3c");
         var len = card.word.length;
         el.dataset.len = len > 13 ? "xl" : len > 10 ? "l" : len > 7 ? "m" : "s";
         el.innerHTML =
