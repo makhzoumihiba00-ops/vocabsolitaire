@@ -135,7 +135,6 @@
 
     function init() {
       Ui.cache(); /* all elements cached before any render */
-      updateSoundIcon();
 
       /* drag & drop + tap-to-select */
       DragDrop.init({
@@ -186,12 +185,6 @@
       });
 
       /* top bar controls */
-      $("#btn-sound").addEventListener("click", () => {
-        Sfx.setEnabled(!Sfx.enabled);
-        updateSoundIcon();
-        Ui.toast(Sfx.enabled ? "🔊 Sound on" : "🔇 Sound off");
-      });
-
       $("#btn-restart").addEventListener("click", () => {
         Sfx.shuffle();
         startGame(Store.get().deckId);
@@ -278,12 +271,6 @@
         savedDeck = localStorage.getItem(GAME_CONFIG.storageKeys.deck);
       } catch (e) { /* ignore */ }
       startGame(savedDeck || VOCAB_CONFIG.decks[0].id);
-    }
-
-    function updateSoundIcon() {
-      $("#icon-sound-on").style.display = Sfx.enabled ? "" : "none";
-      $("#icon-sound-off").style.display = Sfx.enabled ? "none" : "";
-      $("#btn-sound").title = Sfx.enabled ? "Mute sound" : "Unmute sound";
     }
 
     return { init };

@@ -2208,16 +2208,6 @@ body::before {
   </div>
 
   <div class="topbar-actions">
-    <button class="btn btn-ghost btn-icon" id="btn-sound" title="Toggle sound" aria-label="Toggle sound">
-      <svg id="icon-sound-on" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <path d="M15.54 8.46a5 5 0 0 1 0 7.07"></path><path d="M19.07 4.93a10 10 0 0 1 0 14.14"></path>
-      </svg>
-      <svg id="icon-sound-off" viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" style="display:none">
-        <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
-        <line x1="23" y1="9" x2="17" y2="15"></line><line x1="17" y1="9" x2="23" y2="15"></line>
-      </svg>
-    </button>
     <button class="btn" id="btn-restart" title="Shuffle and restart">
       <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
         <polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
@@ -3681,7 +3671,6 @@ body::before {
 
     function init() {
       Ui.cache(); /* all elements cached before any render */
-      updateSoundIcon();
 
       /* store events → UI */
       Store.on("game-started", function (state) {
@@ -3759,12 +3748,6 @@ body::before {
       });
 
       /* top bar controls */
-      $$("#btn-sound").addEventListener("click", function () {
-        Sfx.setEnabled(!Sfx.enabled);
-        updateSoundIcon();
-        Ui.toast(Sfx.enabled ? "🔊 Sound on" : "🔇 Sound off");
-      });
-
       $$("#btn-restart").addEventListener("click", function () {
         var s = Store.get();
         Sfx.shuffle();
@@ -3860,12 +3843,6 @@ body::before {
       try { savedDeck = localStorage.getItem(STORAGE_DECK); } catch (e) {}
       var bootDeck = savedDeck || DECKS[0].id;
       startGame(bootDeck, unlockedLevel(bootDeck));
-    }
-
-    function updateSoundIcon() {
-      $$("#icon-sound-on").style.display = Sfx.enabled ? "" : "none";
-      $$("#icon-sound-off").style.display = Sfx.enabled ? "none" : "";
-      $$("#btn-sound").title = Sfx.enabled ? "Mute sound" : "Unmute sound";
     }
 
     return { init: init };
